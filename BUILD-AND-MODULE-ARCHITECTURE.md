@@ -113,7 +113,7 @@ Sentinel、Photo、Dufs 改为默认 loopback，Union 使用静态 gateway path�
 
 | 能力 | 当前状态 | 完成门槛 |
 |---|---|---|
-| 精确 revision、清单校验、单一目录组装 | 已实现并发布 `union-builder v0.2.0` | 远程 full-transition 组装持续通过 |
+| 精确 revision、清单校验、单一目录组装 | 已实现并发布 `union-builder v0.2.0`；首次远程 full-transition 已通过 | 后续组合变更继续由同一 workflow 验证 |
 | Sentinel/Photo/Dufs 编译期 catalog 选择 | Union `module-*` feature 已实现 | 前端入口、静态代理、supervisor 同样受 feature 控制 |
 | Worker 私有监听 | Sentinel、Photo 强制回环；构建清单拒绝非回环 | Dufs 生产启动参数由 Union 生成且不可覆盖 |
 | 取消模块独立发布 | 三个模块的独立发布 workflow 已移除 | 仓库保护规则阻止重新引入模块 Release |

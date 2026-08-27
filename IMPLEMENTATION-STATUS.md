@@ -20,8 +20,9 @@ Sentinel、Photo Backup 与 Dufs 是独立服务模块。外部模块首版仅�
 
 - `union-builder v0.2.0` 已发布 Linux x86-64、macOS arm64 与 Windows x86-64 CLI；可复用
   Actions workflow 只调用该 CLI，不复制构建规则。
-- `profiles/full-transition.toml` 用完整 commit 固定 Union、Sentinel、Photo、Dufs，并通过干净
-  checkout 的 `plan` 验证；远程完整组装由 workflow 继续验证。
+- `profiles/full-transition.toml` 用完整 commit 固定 Union、Sentinel、Photo、Dufs；干净
+  checkout 的 `plan` 及远程完整编译、组装、artifact 上传均已通过
+  [Actions run 33097239344](https://github.com/isarmg/union-builder/actions/runs/33097239344)。
 - Union 已增加 `module-sentinel-monitor`、`module-photo-backup`、`module-dufs` Cargo feature；
   默认、无可选模块和三个单模块组合均通过编译，默认 Rust 测试通过。
 - `platform-core` 直接导出版本化 manifest，Union 不再读取本机 `../../platform` 兄弟目录；
