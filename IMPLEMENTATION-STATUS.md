@@ -22,7 +22,7 @@ Sentinel、Photo Backup 与 Dufs 是独立服务模块。外部模块首版仅�
   Actions workflow 只调用该 CLI，不复制构建规则。
 - `profiles/full-transition.toml` 用完整 commit 固定 Union、Sentinel、Photo、Dufs；干净
   checkout 的 `plan` 及远程完整编译、组装、artifact 上传均已通过
-  [最终 Actions run 33098368287](https://github.com/isarmg/union-builder/actions/runs/33098368287)。
+  [最终 Actions run 33099948780](https://github.com/isarmg/union-builder/actions/runs/33099948780)。
 - Union 已增加 `module-sentinel-monitor`、`module-photo-backup`、`module-dufs` Cargo feature；
   默认、无可选模块和三个单模块组合均通过编译，默认 Rust 测试通过。
 - `platform-core` 直接导出版本化 manifest，Union 不再读取本机 `../../platform` 兄弟目录；
@@ -30,6 +30,9 @@ Sentinel、Photo Backup 与 Dufs 是独立服务模块。外部模块首版仅�
 - Sentinel 与 Photo 默认并强制监听 loopback；Dufs 的正式组合地址由构建清单强制为 loopback。
 - 三个模块仓库不再有独立发布 workflow；worker crate/binary 仍存在是运行隔离的实现细节，
   不构成独立产品或发布物。
+- Dufs 共享样式登录表单与脚本选择器/CSP 摘要保持一致；修复后的 Rust、静态、覆盖率、打包、
+  Chromium 与 Firefox 全套门禁已在
+  [Actions run 33099718932](https://github.com/isarmg/dufs-ram/actions/runs/33099718932) 通过。
 
 尚未完成：Union 静态代理、worker supervisor、内部短时身份、Dufs 启动参数封闭、Sunshine/
 主机 PostgreSQL 数据迁移与进程拆分、四个正式 profile 的安装/升级/回滚门禁。
