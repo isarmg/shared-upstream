@@ -35,6 +35,12 @@ union-builder
 独立仓库 [`union-builder`](https://github.com/isarmg/union-builder) 是组合构建的唯一实现。
 GitHub Actions 只安装固定工具链、调用 CLI、传递制品和创建 Release。
 
+当前可执行基线是 `union-builder v0.2.0`：`check`、`plan`、`build` 三个命令和
+`.github/workflows/build-union.yml` 共用同一实现。官方过渡清单
+`profiles/full-transition.toml` 已固定 Union、Sentinel、Photo 与 Dufs 的完整 commit，并明确
+把三个 worker 安装到 `libexec/union/modules/`。它不是最终 `full` profile，因为 Sunshine 与
+主机监控仍在 Union 进程内。
+
 构建器负责：
 
 - TOML schema、模块 ID、路由、loopback 地址和端口冲突验证；
@@ -103,3 +109,16 @@ Sentinel、Photo、Dufs 改为默认 loopback，Union 使用静态 gateway path�
 
 自定义 profile 是高级功能：构建器保证图有效，但维护者不承诺每种组合都有安装级测试。
 
+## 6. 当前实现与剩余工作
+
+| 能力 | 当前状态 | 完成门槛 |
+|---|---|---|
+| 精确 revision、清单校验、单一目录组装 | 已实现并发布 `union-builder v0.2.0` | 远程 full-transition 组装持续通过 |
+| Sentinel/Photo/Dufs 编译期 catalog 选择 | Union `module-*` feature 已实现 | 前端入口、静态代理、supervisor 同样受 feature 控制 |
+| Worker 私有监听 | Sentinel、Photo 强制回环；构建清单拒绝非回环 | Dufs 生产启动参数由 Union 生成且不可覆盖 |
+| 取消模块独立发布 | 三个模块的独立发布 workflow 已移除 | 仓库保护规则阻止重新引入模块 Release |
+| Sunshine/主机进程拆分 | 未开始，仍共享 Union SQLite/AppState | PostgreSQL 导入、回滚与双读校验完成后拆进程 |
+| Union 唯一公共入口 | 目标已确定，当前仅健康探测和外部导航 | 静态网关、内部身份、流式/Range/升级测试通过 |
+| 四个官方 profile | 尚未发布 | 安装、升级、回滚和真实依赖矩阵全部通过 |
+
+因此当前可准确称为“组合构建与三 worker 内部化基线”，不能称为“五模块进程化完成”。

@@ -2,8 +2,9 @@
 
 > 重要：下面的阶段 0–3 记录历史完成度，不代表新的进程模块目标已经完成。新的目标、门禁与
 > 当前差距见 `REQUIREMENTS-AND-BOUNDARIES.md` 和 `BUILD-AND-MODULE-ARCHITECTURE.md`。
-> `union-builder` 0.1.0 的源码已建立；Sunshine/主机仍在 Union 进程内，Sentinel/Photo/Dufs
-> 仍等待静态网关和 supervisor，因此现在不能宣称五模块迁移完成。
+> `union-builder` 0.2.0 已发布；Sunshine/主机仍在 Union 进程内，Sentinel/Photo/Dufs 已完成
+> 编译期 catalog 选择与统一组装，但仍等待静态网关和 supervisor，因此现在不能宣称五模块
+> 迁移完成。
 
 截至 2026-08-27，阶段 0、1、2 已完成。阶段 3 已进入 canary：Photo Backup 与 Sentinel
 共同消费独立 `platform` 中的 PostgreSQL 薄支持层，需经过两个发布周期后才能宣布稳定。
@@ -14,6 +15,23 @@
 UnionC 已作为首个发行组装程序接入五模块目录：Sunshine 与主机监控是进程内模块，
 Sentinel、Photo Backup 与 Dufs 是独立服务模块。外部模块首版仅贡献导航和存活状态，
 不代理请求、不转发 Union 会话，也不共享用户表。
+
+## 2026-08-27 组合构建增量
+
+- `union-builder v0.2.0` 已发布 Linux x86-64、macOS arm64 与 Windows x86-64 CLI；可复用
+  Actions workflow 只调用该 CLI，不复制构建规则。
+- `profiles/full-transition.toml` 用完整 commit 固定 Union、Sentinel、Photo、Dufs，并通过干净
+  checkout 的 `plan` 验证；远程完整组装由 workflow 继续验证。
+- Union 已增加 `module-sentinel-monitor`、`module-photo-backup`、`module-dufs` Cargo feature；
+  默认、无可选模块和三个单模块组合均通过编译，默认 Rust 测试通过。
+- `platform-core` 直接导出版本化 manifest，Union 不再读取本机 `../../platform` 兄弟目录；
+  独立 checkout 的 CI 已通过。
+- Sentinel 与 Photo 默认并强制监听 loopback；Dufs 的正式组合地址由构建清单强制为 loopback。
+- 三个模块仓库不再有独立发布 workflow；worker crate/binary 仍存在是运行隔离的实现细节，
+  不构成独立产品或发布物。
+
+尚未完成：Union 静态代理、worker supervisor、内部短时身份、Dufs 启动参数封闭、Sunshine/
+主机 PostgreSQL 数据迁移与进程拆分、四个正式 profile 的安装/升级/回滚门禁。
 
 ## 阶段 0
 

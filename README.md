@@ -8,6 +8,11 @@
 [`BUILD-AND-MODULE-ARCHITECTURE.md`](BUILD-AND-MODULE-ARCHITECTURE.md)，Dufs/Photo 的能力上移
 评估见 [`DUFS-PHOTO-CAPABILITY-ASSESSMENT.md`](DUFS-PHOTO-CAPABILITY-ASSESSMENT.md)。
 
+组合构建实现位于 [`union-builder`](https://github.com/isarmg/union-builder)，当前已发布
+[`v0.2.0`](https://github.com/isarmg/union-builder/releases/tag/v0.2.0)。它提供本地 CLI、
+精确 revision 清单、单一发行目录和可复用 GitHub Actions workflow。当前
+`full-transition` 清单只表示三项外部 worker 已可组装，不等于五模块迁移完成。
+
 当前实现覆盖共享上游方案的阶段 0–2：
 
 - `baseline/`：项目版本、支持范围、验证命令和基线报告。
