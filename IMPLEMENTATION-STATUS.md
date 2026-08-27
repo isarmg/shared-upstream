@@ -1,5 +1,10 @@
 # 共享上游与平台实施状态
 
+> 重要：下面的阶段 0–3 记录历史完成度，不代表新的进程模块目标已经完成。新的目标、门禁与
+> 当前差距见 `REQUIREMENTS-AND-BOUNDARIES.md` 和 `BUILD-AND-MODULE-ARCHITECTURE.md`。
+> `union-builder` 0.1.0 的源码已建立；Sunshine/主机仍在 Union 进程内，Sentinel/Photo/Dufs
+> 仍等待静态网关和 supervisor，因此现在不能宣称五模块迁移完成。
+
 截至 2026-08-27，阶段 0、1、2 已完成。阶段 3 已进入 canary：Photo Backup 与 Sentinel
 共同消费独立 `platform` 中的 PostgreSQL 薄支持层，需经过两个发布周期后才能宣布稳定。
 阶段 4 的通用 HTTP middleware/响应适配仍未开始；当前 `platform-axum` 只负责发行程序中的

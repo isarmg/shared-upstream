@@ -1,5 +1,10 @@
 # Sarmg 项目共享上游方案
 
+> 2026-08-27 架构更新：Union 已确定为唯一发行单元，模块目标模型改为“编译期选择、运行时
+> 独立进程、Union 唯一公网入口”。本文关于薄共享契约、数据库独立所有和不强制 Dufs 迁移
+> Axum 的结论仍有效；旧的“模块独立发布”结论由
+> [`REQUIREMENTS-AND-BOUNDARIES.md`](REQUIREMENTS-AND-BOUNDARIES.md) 取代。
+
 > 2026-08-27 补充：本文定义的“薄共享上游”继续有效。基于 UnionC 提炼出的产品运行平台
 > 作为独立层实现，见 [`../platform/README.md`](../platform/README.md)。平台通过模块契约组装产品，
 > 不把业务 Router、业务数据库或统一 `AppState` 放入本共享上游。

@@ -3,6 +3,11 @@
 这里保存 `union-rust`、`dufs-ram`、`photo-backup` 和 `sentinel-monitor` 共同使用的
 稳定契约、生成制品与合规测试。业务模型、业务数据库和产品页面不属于本仓库。
 
+2026-08-27 起，Union 是唯一产品和发行单元；模块在构建时选择、运行时保持独立进程。
+规范入口是 [`REQUIREMENTS-AND-BOUNDARIES.md`](REQUIREMENTS-AND-BOUNDARIES.md)，技术方案见
+[`BUILD-AND-MODULE-ARCHITECTURE.md`](BUILD-AND-MODULE-ARCHITECTURE.md)，Dufs/Photo 的能力上移
+评估见 [`DUFS-PHOTO-CAPABILITY-ASSESSMENT.md`](DUFS-PHOTO-CAPABILITY-ASSESSMENT.md)。
+
 当前实现覆盖共享上游方案的阶段 0–2：
 
 - `baseline/`：项目版本、支持范围、验证命令和基线报告。
