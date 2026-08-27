@@ -1,0 +1,27 @@
+{
+  "name": "@sarmg/shared-upstream",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "build:design": "node scripts/build-design.mjs",
+    "check:design": "node scripts/build-design.mjs --check",
+    "sync": "node scripts/sync-consumers.mjs",
+    "sync:check": "node scripts/sync-consumers.mjs --check",
+    "baseline:list": "node scripts/verify-baseline.mjs --list",
+    "baseline:quick": "node scripts/verify-baseline.mjs --all --mode quick",
+    "baseline:full": "node scripts/verify-baseline.mjs --all --mode full",
+    "conformance:inventory": "node conformance/run.mjs --inventory",
+    "conformance:live": "node conformance/run.mjs --all",
+    "test:design": "playwright test",
+    "check": "npm run check:design && npm run sync:check && node scripts/check-docs.mjs && node --test tests/*.test.mjs conformance/tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}
+

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "kind": "project-baseline",
+  "mode": "quick",
+  "started_at": "2026-08-27T12:21:31.266Z",
+  "workspace_root": "/mnt/sarmg.org",
+  "projects": [
+    {
+      "name": "union-rust",
+      "version": "0.3.6",
+      "revision": "1e66977",
+      "commands": [
+        {
+          "cwd": "union-rust",
+          "command": [
+            "cargo",
+            "test",
+            "--workspace",
+            "--no-run"
+          ],
+          "exit_code": 0,
+          "duration_ms": 770,
+          "output_tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s\n  Executable unittests src/lib.rs (target/debug/deps/unionc-f94fb6148d03b7d7)\n  Executable unittests src/main.rs (target/debug/deps/unionc-59dddfd67501d8b7)\n  Executable tests/agent_pairing.rs (target/debug/deps/agent_pairing-63c14e8b7413995d)\n  Executable tests/agent_protocol_contract.rs (target/debug/deps/agent_protocol_contract-93e822af00a570b2)\n  Executable tests/agent_rate_limits.rs (target/debug/deps/agent_rate_limits-e3b97cf731d82842)\n  Executable tests/agent_report_validation.rs (target/debug/deps/agent_report_validation-926fb88957af31b4)\n  Executable tests/audit_bounds.rs (target/debug/deps/audit_bounds-1b87a284da71e4ce)\n  Executable tests/audit_retention.rs (target/debug/deps/audit_retention-e6eb5b07d23526aa)\n  Executable tests/csrf_double_submit.rs (target/debug/deps/csrf_double_submit-eeefecba708542ad)\n  Executable tests/database_schema.rs (target/debug/deps/database_schema-e2f1d13ab00d09f7)\n  Executable tests/history_query.rs (target/debug/deps/history_query-84be4c3da1d757f3)\n  Executable tests/host_pagination.rs (target/debug/deps/host_pagination-fb7a6d4b8d3e58a3)\n  Executable tests/host_row_write_amplification.rs (target/debug/deps/host_row_write_amplification-17655953bd0e82a7)\n  Executable tests/http_access.rs (target/debug/deps/http_access-f6ccfaf87648a36e)\n  Executable tests/latest_report_retention.rs (target/debug/deps/latest_report_retention-c45b5a2b83970f33)\n  Executable tests/login_rate_limit.rs (target/debug/deps/login_rate_limit-eeba0f4afc4911bb)\n  Executable tests/monitoring_read_path_cost.rs (target/debug/deps/monitoring_read_path_cost-4c24f81216c7fc73)\n  Executable tests/report_ordering.rs (target/debug/deps/report_ordering-9bd005a080bd1de4)\n  Executable tests/security_headers.rs (target/debug/deps/security_headers-14ba244d7f2fd930)\n  Executable tests/service_status_probe.rs (target/debug/deps/service_status_probe-ea6a1e08963cbc8c)\n  Executable tests/sqlite_maintenance.rs (target/debug/deps/sqlite_maintenance-77d9ef9de7343a1e)\n  Executable tests/sunshine_crud_snapshots.rs (target/debug/deps/sunshine_crud_snapshots-f0ef48b423345c3f)\n  Executable tests/sunshine_host_persistence.rs (target/debug/deps/sunshine_host_persistence-4101b52019c326e6)\n  Executable tests/system_resources.rs (target/debug/deps/system_resources-5d4d096a8aecdb8c)\n  Executable unittests src/lib.rs (target/debug/deps/unionc_agent-49da97275204dc2f)\n  Executable unittests src/main.rs (target/debug/deps/unionc_agent-bbb99536336d40d7)\n  Executable unittests src/bin/unionc-agent-maintenance.rs (target/debug/deps/unionc_agent_maintenance-c38fd265e6854449)\n  Executable unittests src/bin/unionc-agent-tray.rs (target/debug/deps/unionc_agent_tray-d90199610c1dc507)\n  Executable tests/explicit_config.rs (target/debug/deps/explicit_config-a75bedb9f383c4cc)\n  Executable tests/pairing_transport_policy.rs (target/debug/deps/pairing_transport_policy-fbfeaa7d24e7a599)\n  Executable tests/status_active_binding.rs (target/debug/deps/status_active_binding-267f2bc250982de0)\n  Executable unittests src/lib.rs (target/debug/deps/unionc_protocol-dabc5a1f14b79bf8)\n"
+        },
+        {
+          "cwd": "union-rust/web",
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "exit_code": 0,
+          "duration_ms": 9626,
+          "output_tail": ""
+        },
+        {
+          "cwd": "union-rust/web",
+          "command": [
+            "npm",
+            "test"
+          ],
+          "exit_code": 0,
+          "duration_ms": 18740,
+          "output_tail": ""
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "dufs-ram",
+      "version": "0.49.7",
+      "revision": "81a2a83",
+      "commands": [
+        {
+          "cwd": "dufs-ram",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "--no-run"
+          ],
+          "exit_code": 0,
+          "duration_ms": 22502,
+          "output_tail": "   Compiling dufs v0.49.7 (/mnt/sarmg.org/dufs-ram)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.37s\n  Executable unittests src/lib.rs (target/debug/deps/dufs-f1c7d15ea37cb0f8)\n  Executable unittests src/main.rs (target/debug/deps/dufs-44c43e820b926d0b)\n  Executable tests/args.rs (target/debug/deps/args-15cd76edfebd0fbb)\n  Executable tests/assets.rs (target/debug/deps/assets-4e93f9dd63b006ee)\n  Executable tests/auth.rs (target/debug/deps/auth-31fd8e29f9a90970)\n  Executable tests/bind.rs (target/debug/deps/bind-0385edffbe9cd45c)\n  Executable tests/browser_api.rs (target/debug/deps/browser_api-0f0c1d942e62d57f)\n  Executable tests/cache.rs (target/debug/deps/cache-c4bac98ae9267112)\n  Executable tests/capabilities.rs (target/debug/deps/capabilities-4e533bf2d06d27e6)\n  Executable tests/cli.rs (target/debug/deps/cli-2d461c6b6337ebb4)\n  Executable tests/config.rs (target/debug/deps/config-33d790af11f81000)\n  Executable tests/health.rs (target/debug/deps/health-480f6b7078fea0d4)\n  Executable tests/http.rs (target/debug/deps/http-e889eebb21c1bcec)\n  Executable tests/http_logger.rs (target/debug/deps/http_logger-b251a39a8c06ada8)\n  Executable tests/library_api.rs (target/debug/deps/library_api-60c2b3dfcce20399)\n  Executable tests/pagination.rs (target/debug/deps/pagination-f863134e90d50ae8)\n  Executable tests/protocol.rs (target/debug/deps/protocol-237e786d05b67891)\n  Executable tests/range.rs (target/debug/deps/range-ab898749fde78ac9)\n  Executable tests/shutdown.rs (target/debug/deps/shutdown-c99d70863b9e3fd2)\n  Executable tests/sort.rs (target/debug/deps/sort-d67cbc548ca22284)\n  Executable tests/symlink.rs (target/debug/deps/symlink-25fef8c6b1909934)\n"
+        },
+        {
+          "cwd": "dufs-ram",
+          "command": [
+            "npm",
+            "run",
+            "check:js"
+          ],
+          "exit_code": 0,
+          "duration_ms": 2480,
+          "output_tail": ""
+        },
+        {
+          "cwd": "dufs-ram",
+          "command": [
+            "npm",
+            "run",
+            "check:types"
+          ],
+          "exit_code": 0,
+          "duration_ms": 4436,
+          "output_tail": ""
+        },
+        {
+          "cwd": "dufs-ram",
+          "command": [
+            "npm",
+            "run",
+            "test:frontend:unit"
+          ],
+          "exit_code": 0,
+          "duration_ms": 729,
+          "output_tail": ""
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "photo-backup",
+      "version": "0.1.0",
+      "revision": "55cc233",
+      "commands": [
+        {
+          "cwd": "photo-backup",
+          "command": [
+            "cargo",
+            "test",
+            "--workspace",
+            "--no-run"
+          ],
+          "exit_code": 0,
+          "duration_ms": 578,
+          "output_tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s\n  Executable unittests src/lib.rs (target/debug/deps/photo_backup_agent_core-8c6ccd530e0fa51f)\n  Executable unittests src/lib.rs (target/debug/deps/photo_backup_crypto-994c5d3e7530f70e)\n  Executable unittests src/lib.rs (target/debug/deps/photo_backup_mobile-1974ed362f7009c9)\n  Executable unittests src/lib.rs (target/debug/deps/photo_backup_protocol-205fd547b0f9a68d)\n  Executable unittests src/main.rs (target/debug/deps/photo_backup_server-726fb106f7ca4f8e)\n"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "sentinel-monitor",
+      "version": "0.1.0",
+      "revision": null,
+      "commands": [
+        {
+          "cwd": "sentinel-monitor",
+          "command": [
+            "cargo",
+            "test",
+            "--no-run"
+          ],
+          "exit_code": 0,
+          "duration_ms": 689,
+          "output_tail": "warning: unused import: `std::collections::HashMap`\n --> src/background.rs:7:5\n  |\n7 | use std::collections::HashMap;\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unused import: `emit_event`\n --> src/routes.rs:6:31\n  |\n6 |     background::{camera_path, emit_event, sync_camera},\n  |                               ^^^^^^^^^^\n\nwarning: unused imports: `AUTHORIZATION`, `delete`, and `patch`\n  --> src/routes.rs:18:28\n   |\n18 |             ACCEPT_RANGES, AUTHORIZATION, CONTENT_DISPOSITION, CONTENT_LENGTH, CONTENT_RANGE,\n   |                            ^^^^^^^^^^^^^\n...\n24 |     routing::{delete, get, patch, post, put},\n   |               ^^^^^^       ^^^^^\n\nwarning: method `view` is never used\n  --> src/auth.rs:43:12\n   |\n26 | impl CurrentUser {\n   | ---------------- method in this implementation\n...\n43 |     pub fn view(&self) -> UserView {\n   |            ^^^^\n   |\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `updated_at` is never read\n  --> src/models.rs:15:9\n   |\n 7 | pub struct UserRecord {\n   |            ---------- field in this struct\n...\n15 |     pub updated_at: DateTime<Utc>,\n   |         ^^^^^^^^^^\n   |\n   = note: `UserRecord` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis\n\nwarning: `sentinel-monitor` (bin \"sentinel-monitor\" test) generated 5 warnings (run `cargo fix --bin \"sentinel-monitor\" -p sentinel-monitor --tests` to apply 3 suggestions)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s\n  Executable unittests src/main.rs (target/debug/deps/sentinel_monitor-f06ebc039f00feb2)\n"
+        },
+        {
+          "cwd": "sentinel-monitor/web",
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "exit_code": 0,
+          "duration_ms": 4227,
+          "output_tail": ""
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "finished_at": "2026-08-27T12:22:36.052Z",
+  "status": "pass"
+}

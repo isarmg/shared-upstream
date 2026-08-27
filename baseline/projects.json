@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "captured_on": "2026-08-27",
+  "workspace_root": "/mnt/sarmg.org",
+  "projects": {
+    "union-rust": {
+      "version": "0.3.6",
+      "revision": "1e66977",
+      "version_control": "independent-git",
+      "http": "Axum 0.8",
+      "database": "SQLx SQLite",
+      "deployment": "Linux server and Caddy-served static console; cross-platform agent",
+      "browser_support": "Modern Chromium/Firefox-class browsers; responsive minimum width 320px",
+      "quick": [
+        { "cwd": "union-rust", "command": ["cargo", "test", "--workspace", "--no-run"] },
+        { "cwd": "union-rust/web", "command": ["npm", "run", "typecheck"] },
+        { "cwd": "union-rust/web", "command": ["npm", "test"] }
+      ],
+      "full": [
+        { "cwd": "union-rust", "command": ["cargo", "test", "--workspace"] },
+        { "cwd": "union-rust/web", "command": ["npm", "run", "lint"] },
+        { "cwd": "union-rust/web", "command": ["npm", "test"] },
+        { "cwd": "union-rust/web", "command": ["npm", "run", "build"] }
+      ]
+    },
+    "dufs-ram": {
+      "version": "0.49.7",
+      "revision": "81a2a83",
+      "version_control": "independent-git",
+      "http": "Hyper 1 custom router",
+      "database": "rusqlite SQLite",
+      "deployment": "Single Linux executable managing one shared root",
+      "browser_support": "Modern desktop Chromium, Firefox and Edge; Playwright coverage",
+      "quick": [
+        { "cwd": "dufs-ram", "command": ["cargo", "test", "--locked", "--no-run"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "check:js"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "check:types"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "test:frontend:unit"] }
+      ],
+      "full": [
+        { "cwd": "dufs-ram", "command": ["cargo", "test", "--locked"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "check:docs"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "check:js"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "check:types"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "test:frontend:unit"] },
+        { "cwd": "dufs-ram", "command": ["npm", "run", "test:frontend"] }
+      ]
+    },
+    "photo-backup": {
+      "version": "0.1.0",
+      "revision": "55cc233",
+      "version_control": "independent-git",
+      "http": "Axum 0.8",
+      "database": "SQLx PostgreSQL plus local object storage",
+      "deployment": "Linux/WSL server with native Android Compose and iOS SwiftUI clients",
+      "browser_support": "Modern browser for the embedded administration page",
+      "quick": [
+        { "cwd": "photo-backup", "command": ["cargo", "test", "--workspace", "--no-run"] }
+      ],
+      "full": [
+        { "cwd": "photo-backup", "command": ["cargo", "fmt", "--all", "--", "--check"] },
+        { "cwd": "photo-backup", "command": ["cargo", "test", "--workspace"] }
+      ]
+    },
+    "sentinel-monitor": {
+      "version": "0.1.0",
+      "revision": null,
+      "version_control": "unversioned-local-directory",
+      "http": "Axum 0.8",
+      "database": "SQLx PostgreSQL",
+      "deployment": "Rust control plane with MediaMTX and Caddy; Docker Compose or native Linux",
+      "browser_support": "Modern browsers with WebRTC; HLS fallback through hls.js",
+      "quick": [
+        { "cwd": "sentinel-monitor", "command": ["cargo", "test", "--no-run"] },
+        { "cwd": "sentinel-monitor/web", "command": ["npm", "run", "build"] }
+      ],
+      "full": [
+        { "cwd": "sentinel-monitor", "command": ["cargo", "fmt", "--", "--check"] },
+        { "cwd": "sentinel-monitor", "command": ["cargo", "test"] },
+        { "cwd": "sentinel-monitor/web", "command": ["npm", "run", "build"] }
+      ]
+    }
+  }
+}
+

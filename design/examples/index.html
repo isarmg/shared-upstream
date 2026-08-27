@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sarmg design fixture</title>
+    <link rel="stylesheet" href="/dist/design/bundle.css">
+    <style>
+      body { margin: 0; }
+      .fixture { min-height: 100vh; padding: 24px; }
+      .fixture h1 { margin: 0 0 24px; }
+      .fixture-controls { display: flex; gap: 8px; margin-bottom: 24px; }
+    </style>
+  </head>
+  <body class="sarmg-theme" data-sarmg-scope data-sarmg-theme="light">
+    <main class="fixture">
+      <h1>共享设计固件</h1>
+      <div class="fixture-controls">
+        <button id="theme" type="button">切换主题</button>
+        <a href="#cards">跳到卡片</a>
+      </div>
+      <section id="cards" class="sarmg-grid" aria-label="内容卡片">
+        <article class="sarmg-card">
+          <div class="sarmg-card__inner">
+            <div class="sarmg-card__row"><span class="sarmg-card__label">状态</span><div class="sarmg-card__content"><span class="sarmg-truncate sarmg-grow">运行正常</span><i class="sarmg-status-led sarmg-status-good"></i></div></div>
+            <div class="sarmg-card__row"><span class="sarmg-card__label">地址</span><div class="sarmg-card__content"><span class="sarmg-truncate">example.internal</span></div></div>
+            <div class="sarmg-card__row"><span class="sarmg-card__label">负载</span><div class="sarmg-card__content">28%</div></div>
+            <div class="sarmg-card__row"><span class="sarmg-card__label">说明</span><div class="sarmg-card__content"><span class="sarmg-truncate sarmg-muted">一段很长的中英文 mixed content for overflow verification</span></div></div>
+            <div class="sarmg-card__row"><span class="sarmg-card__label">版本</span><div class="sarmg-card__content">0.1.0</div></div>
+            <div class="sarmg-card__row"><span class="sarmg-card__label">操作</span><div class="sarmg-card__content"><div class="sarmg-card__actions"><button class="sarmg-card__action sarmg-action-primary">刷新</button><button class="sarmg-card__action sarmg-action-danger">删除</button></div></div></div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script>
+      document.querySelector("#theme").addEventListener("click", () => {
+        document.body.dataset.sarmgTheme = document.body.dataset.sarmgTheme === "dark" ? "light" : "dark";
+      });
+    </script>
+  </body>
+</html>

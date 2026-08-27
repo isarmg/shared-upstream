@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sarmg design tokens",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "font", "light", "dark", "spacing", "radius"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sans"],
+      "properties": { "sans": { "type": "string", "minLength": 1 } }
+    },
+    "light": { "$ref": "#/$defs/palette" },
+    "dark": { "$ref": "#/$defs/palette" },
+    "spacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "theme"],
+      "properties": {
+        "content": { "type": "string" },
+        "theme": { "type": "string" }
+      }
+    },
+    "radius": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control", "card", "panel"],
+      "properties": {
+        "control": { "type": "string" },
+        "card": { "type": "string" },
+        "panel": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "palette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "background", "surface", "surface_strong", "border", "text", "muted", "subtle",
+        "primary", "primary_strong", "danger", "danger_soft", "success", "success_soft",
+        "warning", "warning_soft", "accent", "shadow"
+      ],
+      "properties": {
+        "background": { "type": "string" },
+        "surface": { "type": "string" },
+        "surface_strong": { "type": "string" },
+        "border": { "type": "string" },
+        "text": { "type": "string" },
+        "muted": { "type": "string" },
+        "subtle": { "type": "string" },
+        "primary": { "type": "string" },
+        "primary_strong": { "type": "string" },
+        "danger": { "type": "string" },
+        "danger_soft": { "type": "string" },
+        "success": { "type": "string" },
+        "success_soft": { "type": "string" },
+        "warning": { "type": "string" },
+        "warning_soft": { "type": "string" },
+        "accent": { "type": "string" },
+        "shadow": { "type": "string" }
+      }
+    }
+  }
+}
+

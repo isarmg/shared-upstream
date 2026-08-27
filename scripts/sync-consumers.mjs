@@ -1,0 +1,60 @@
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const workspace = resolve(root, "..");
+const dist = join(root, "dist/design");
+const checkOnly = process.argv.includes("--check");
+
+const mappings = [
+  {
+    project: "union-rust",
+    destination: "union-rust/web/vendor/sarmg-design",
+    files: ["reset.css", "tokens.css", "content-card.css", "login.css", "accessibility.css", "manifest.json"],
+  },
+  {
+    project: "photo-backup",
+    destination: "photo-backup/vendor/sarmg-design",
+    files: ["bundle.css", "manifest.json"],
+  },
+  {
+    project: "dufs-ram",
+    destination: "dufs-ram/assets",
+    files: [
+      ["bundle.css", "sarmg-design.css"],
+      ["manifest.json", "sarmg-design.manifest.json"],
+    ],
+  },
+  {
+    project: "sentinel-monitor",
+    destination: "sentinel-monitor/web/vendor/sarmg-design",
+    files: ["reset.css", "accessibility.css", "manifest.json"],
+  },
+];
+
+async function writeAtomic(path, content) {
+  await mkdir(dirname(path), { recursive: true });
+  const temporary = `${path}.tmp`;
+  await writeFile(temporary, content, { mode: 0o644 });
+  await rename(temporary, path);
+}
+
+for (const mapping of mappings) {
+  for (const entry of mapping.files) {
+    const [sourceName, destinationName] = Array.isArray(entry) ? entry : [entry, entry];
+    const source = await readFile(join(dist, sourceName), "utf8");
+    const destination = join(workspace, mapping.destination, destinationName);
+    if (checkOnly) {
+      let current;
+      try { current = await readFile(destination, "utf8"); }
+      catch { throw new Error(`${mapping.project} is missing vendored ${destinationName}`); }
+      if (current !== source) throw new Error(`${mapping.project} has stale vendored ${destinationName}`);
+    } else {
+      await writeAtomic(destination, source);
+    }
+  }
+}
+
+process.stdout.write(`${checkOnly ? "verified" : "synchronized"} ${mappings.length} consumers\n`);
+

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "org.sarmg.http",
+  "version": "1.0.0",
+  "effective_date": "2026-08-27",
+  "requirements": [
+    { "id": "health.liveness", "category": "health", "level": "must", "summary": "Public GET liveness returns 200 promptly and is not cached." },
+    { "id": "health.readiness", "category": "health", "level": "must", "summary": "Public GET readiness checks required persistence and storage dependencies and returns 200 or 503." },
+    { "id": "errors.machine_readable", "category": "errors", "level": "must", "summary": "API errors expose a stable code plus a human-readable message after adapter normalization." },
+    { "id": "session.cookie", "category": "session", "level": "must", "summary": "Session cookies are HttpOnly, SameSite=Strict, scoped narrowly, and Secure on HTTPS." },
+    { "id": "session.csrf", "category": "csrf", "level": "must", "summary": "Unsafe cookie-authenticated requests require a session-bound CSRF value." },
+    { "id": "headers.browser", "category": "headers", "level": "must", "summary": "Browser responses prevent MIME sniffing and framing and declare referrer/resource policy." },
+    { "id": "budgets.request", "category": "budgets", "level": "must", "summary": "Request body bytes and receive time are bounded before business handlers." },
+    { "id": "logging.redaction", "category": "logging", "level": "must", "summary": "Access and error logs redact credentials, cookies, CSRF values, and bearer tokens." }
+  ],
+  "normalized_error": {
+    "required": ["code", "message"],
+    "code_pattern": "^[a-z][a-z0-9_]{0,63}$",
+    "adapters": ["flat-code-message", "nested-error", "rfc9457-problem"]
+  },
+  "normalized_health": {
+    "liveness_states": ["ok"],
+    "readiness_states": ["ready", "not_ready"],
+    "cache_control_contains": "no-store"
+  },
+  "waiver_policy": {
+    "required_fields": ["adr", "owner", "review_by", "risk"],
+    "maximum_review_days": 180
+  }
+}

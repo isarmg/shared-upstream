@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "contract": "org.sarmg.http@1.0.0",
+  "mode": "inventory",
+  "generated_at": "2026-08-27T13:52:02.791Z",
+  "projects": [
+    {
+      "id": "union-rust",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 4,
+        "fail": 0,
+        "waived": 0,
+        "not_run": 4,
+        "total": 8
+      }
+    },
+    {
+      "id": "dufs-ram",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set DUFS_BASE_URL"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set DUFS_BASE_URL"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "waived",
+          "message": "low risk; review by 2026-11-27; owner dufs-ram maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "waived",
+          "message": "low risk; review by 2026-11-27; owner dufs-ram maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 4,
+        "fail": 0,
+        "waived": 2,
+        "not_run": 2,
+        "total": 8
+      }
+    },
+    {
+      "id": "photo-backup",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set PHOTO_BACKUP_BASE_URL"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set PHOTO_BACKUP_BASE_URL"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner photo-backup maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner photo-backup maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner photo-backup maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner photo-backup maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 2,
+        "fail": 0,
+        "waived": 4,
+        "not_run": 2,
+        "total": 8
+      }
+    },
+    {
+      "id": "sentinel-monitor",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set SENTINEL_BASE_URL"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set SENTINEL_BASE_URL"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "not_run",
+          "message": "live check declared; set SENTINEL_BASE_URL"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner sentinel-monitor maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner sentinel-monitor maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner sentinel-monitor maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 2,
+        "fail": 0,
+        "waived": 3,
+        "not_run": 3,
+        "total": 8
+      }
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "waived": 9,
+    "not_run": 11,
+    "total": 32
+  }
+}
