@@ -123,6 +123,8 @@ const manifest = {
   schema_version: 1,
   package: "@sarmg/design",
   version: packageJson.version,
+  author: packageJson.author,
+  license: packageJson.license,
   source: "design/tokens/tokens.json",
   files: Object.fromEntries([...outputs].map(([name, content]) => [name, { sha256: sha256(content), bytes: Buffer.byteLength(content) }])),
 };

@@ -28,3 +28,8 @@ npm run conformance:inventory
 
 设计制品由 `design/tokens/tokens.json` 和 `design/web/` 生成。消费者中的 vendored
 文件不得手工修改，必须通过 `npm run sync` 更新。
+
+## 许可证
+
+本仓库的第一方代码、文档、测试、设计令牌和生成制品采用
+[Apache License 2.0](LICENSE)。消费者不会因此取得其第三方依赖的重许可。
