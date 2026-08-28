@@ -3,59 +3,88 @@
   "contract": "org.sarmg.http@1.0.0",
   "projects": [
     {
-      "id": "union-rust",
+      "id": "union-core",
+      "role": "public_ingress",
       "base_url_env": "UNION_BASE_URL",
       "checks": [
         { "id": "health.liveness", "kind": "http", "path": "/api/health", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] }, "headers": { "cache-control": { "contains": "no-store" } } },
-        { "id": "health.readiness", "kind": "http", "path": "/api/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not-ready"] } },
+        { "id": "health.readiness", "kind": "http", "path": "/api/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not-ready"] }, "headers": { "cache-control": { "contains": "no-store" } } },
         { "id": "errors.machine_readable", "kind": "http", "path": "/api/auth/me", "statuses": [401], "content_type": "application/json", "error_adapter": "flat-code-message" },
         { "id": "headers.browser", "kind": "http", "path": "/api/health", "statuses": [200], "headers": { "x-content-type-options": "nosniff", "x-frame-options": "DENY", "referrer-policy": "no-referrer", "cross-origin-resource-policy": "same-origin" } },
         { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "; Secure", "__Host-"] }] },
         { "id": "session.csrf", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
-        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["DefaultBodyLimit::max", "REQUEST_BODY_DEADLINE"] }] },
-        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/error.rs", "contains": ["internal error", "database error", "storage error"] }] }
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "max_bytes", "payload_too_large_response"] }, { "file": "union-rust/server/src/http/mod.rs", "contains": ["DefaultBodyLimit::max", "request_body_deadline::enforce"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "x-csrf-token", "filter_union_cookies"] }, { "file": "union-rust/server/src/error.rs", "contains": ["internal error", "database error", "storage error"] }] }
       ]
     },
     {
-      "id": "dufs-ram",
-      "base_url_env": "UNION_BASE_URL",
+      "id": "sunshine",
+      "role": "private_module",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/modules/dufs/__dufs__/health", "statuses": [200], "content_type": "application/json", "json": { "status": ["OK"] }, "headers": { "cache-control": { "contains": "no-store" } } },
-        { "id": "health.readiness", "kind": "http", "path": "/modules/dufs/__dufs__/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not_ready"] }, "headers": { "cache-control": { "contains": "no-store" } } },
-        { "id": "errors.machine_readable", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs-ram maintainers", "review_by": "2026-11-27", "risk": "low" } },
-        { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs-ram maintainers", "review_by": "2026-11-27", "risk": "low" } },
-        { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "dufs-ram/src/auth.rs", "contains": ["HttpOnly; Secure; SameSite=Strict", "__Secure-dufs-session", "Path=/modules/dufs/"] }] },
-        { "id": "session.csrf", "kind": "source", "evidence": [{ "file": "dufs-ram/src/server/session.rs", "contains": ["x-dufs-csrf-token", "verify_csrf"] }] },
-        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "dufs-ram/src/server/session.rs", "contains": ["LOGIN_BODY_LIMIT", "LOGIN_BODY_TIMEOUT", "Limited::new"] }, { "file": "dufs-ram/src/server/upload/transfer.rs", "contains": ["IdleTimeout", "TotalTimeout", "ExcessBody"] }] },
-        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "dufs-ram/src/http_logger.rs", "contains": ["authorization", "cookie", "x-dufs-csrf-token"] }] }
+        { "id": "health.liveness", "kind": "module_manifest", "file": "sunshine-worker/manifest.json", "module_id": "sunshine", "assertion": "private_liveness", "evidence": [{ "file": "union-rust/server/src/platform/runtime.rs", "contains": ["probe_http_until_ready", "periodic HTTP liveness/readiness checks passed"] }] },
+        { "id": "health.readiness", "kind": "module_manifest", "file": "sunshine-worker/manifest.json", "module_id": "sunshine", "assertion": "private_readiness", "evidence": [{ "file": "union-rust/server/src/platform/http.rs", "contains": ["/api/platform/modules", "ModuleRuntimeView"] }] },
+        { "id": "errors.machine_readable", "kind": "source", "evidence": [{ "file": "sunshine-worker/src/error.rs", "contains": ["struct ErrorBody", "code:", "message:", "fn code"] }] },
+        { "id": "headers.browser", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["module_api_router()", "security_headers::apply"] }, { "file": "union-rust/server/src/http/security_headers.rs", "contains": ["core_overwrites_handler_security_headers", "/api/modules/<id>/*"] }] },
+        { "id": "session.cookie", "kind": "module_manifest", "file": "sunshine-worker/manifest.json", "module_id": "sunshine", "assertion": "central_authentication", "module_auth_routes": [], "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "__Host-"] }, { "file": "sunshine-worker/src/http.rs", "contains": ["valid_gateway_proof_still_rejects_union_cookie"] }] },
+        { "id": "session.csrf", "kind": "module_manifest", "file": "sunshine-worker/manifest.json", "module_id": "sunshine", "assertion": "central_authentication", "module_auth_routes": [], "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "default_max_bytes"] }, { "file": "sunshine-worker/src/http.rs", "contains": ["DefaultBodyLimit::max"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "filter_union_cookies", "x-union-module-token"] }, { "file": "sunshine-worker/src/error.rs", "contains": ["internal error", "Sunshine worker request failed"] }] }
       ]
     },
     {
-      "id": "photo-backup",
-      "base_url_env": "UNION_BASE_URL",
+      "id": "host-monitoring",
+      "role": "private_module",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/modules/photo-backup/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
-        { "id": "health.readiness", "kind": "http", "path": "/modules/photo-backup/health/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not-ready"] }, "json_has": ["database", "storage"] },
-        { "id": "errors.machine_readable", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "session.cookie", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "session.csrf", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "photo-backup/crates/server/src/routes.rs", "contains": ["DefaultBodyLimit::max", "max_part_bytes"] }] },
-        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "photo-backup/crates/server/src/error.rs", "contains": ["database error", "storage error"] }, { "file": "photo-backup/crates/server/src/main.rs", "contains": ["TraceLayer::new_for_http"] }] }
+        { "id": "health.liveness", "kind": "module_manifest", "file": "host-monitoring/host-monitoring-worker/manifest.json", "module_id": "host-monitoring", "assertion": "private_liveness", "evidence": [{ "file": "union-rust/server/src/platform/runtime.rs", "contains": ["probe_http_until_ready", "periodic HTTP liveness/readiness checks passed"] }] },
+        { "id": "health.readiness", "kind": "module_manifest", "file": "host-monitoring/host-monitoring-worker/manifest.json", "module_id": "host-monitoring", "assertion": "private_readiness", "evidence": [{ "file": "union-rust/server/src/platform/http.rs", "contains": ["/api/platform/modules", "ModuleRuntimeView"] }] },
+        { "id": "errors.machine_readable", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "host-monitoring maintainers", "review_by": "2026-11-27", "risk": "medium" } },
+        { "id": "headers.browser", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["module_api_router()", "security_headers::apply"] }, { "file": "union-rust/server/src/http/security_headers.rs", "contains": ["core_overwrites_handler_security_headers", "/api/modules/<id>/*"] }] },
+        { "id": "session.cookie", "kind": "module_manifest", "file": "host-monitoring/host-monitoring-worker/manifest.json", "module_id": "host-monitoring", "assertion": "central_authentication", "module_auth_routes": ["agent-report", "agent-activate", "pairing-create", "pairing-read", "pairing-status"], "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "__Host-"] }, { "file": "host-monitoring/host-monitoring-worker/src/auth.rs", "contains": ["Union cookies must be stripped", "parse_principal"] }] },
+        { "id": "session.csrf", "kind": "module_manifest", "file": "host-monitoring/host-monitoring-worker/manifest.json", "module_id": "host-monitoring", "assertion": "central_authentication", "module_auth_routes": ["agent-report", "agent-activate", "pairing-create", "pairing-read", "pairing-status"], "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "default_max_bytes"] }, { "file": "host-monitoring/host-monitoring-worker/src/http.rs", "contains": ["DefaultBodyLimit::max", "AGENT_REPORT_MAX_BODY_BYTES"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "filter_union_cookies", "x-union-module-token"] }, { "file": "host-monitoring/host-monitoring-worker/src/auth.rs", "contains": ["Union cookies must be stripped before forwarding"] }] }
       ]
     },
     {
       "id": "sentinel-monitor",
-      "base_url_env": "UNION_BASE_URL",
+      "role": "private_module",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/modules/sentinel-monitor/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
-        { "id": "health.readiness", "kind": "http", "path": "/modules/sentinel-monitor/health/ready", "statuses": [200, 503], "content_type": "application/json", "json_has": ["database", "media_service"] },
-        { "id": "errors.machine_readable", "kind": "http", "path": "/modules/sentinel-monitor/api/me", "statuses": [401], "content_type": "application/json", "error_adapter": "nested-error" },
-        { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "sentinel-monitor maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "sentinel-monitor/src/auth.rs", "contains": ["HttpOnly; SameSite=Strict", "session_cookie_secure", "; Secure"] }] },
-        { "id": "session.csrf", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "sentinel-monitor maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "budgets.request", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "sentinel-monitor maintainers", "review_by": "2026-11-27", "risk": "medium" } },
-        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "sentinel-monitor/src/error.rs", "contains": ["服务器内部错误", "request failed"] }, { "file": "sentinel-monitor/src/routes.rs", "contains": ["TraceLayer::new_for_http"] }] }
+        { "id": "health.liveness", "kind": "module_manifest", "file": "sentinel-monitor/manifest.json", "module_id": "sentinel-monitor", "assertion": "private_liveness", "evidence": [{ "file": "union-rust/server/src/platform/runtime.rs", "contains": ["probe_http_until_ready", "periodic HTTP liveness/readiness checks passed"] }] },
+        { "id": "health.readiness", "kind": "module_manifest", "file": "sentinel-monitor/manifest.json", "module_id": "sentinel-monitor", "assertion": "private_readiness", "evidence": [{ "file": "union-rust/server/src/platform/http.rs", "contains": ["/api/platform/modules", "ModuleRuntimeView"] }] },
+        { "id": "errors.machine_readable", "kind": "source", "evidence": [{ "file": "sentinel-monitor/src/error.rs", "contains": ["\"code\": code", "\"message\": message", "服务器内部错误"] }] },
+        { "id": "headers.browser", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["module_api_router()", "security_headers::apply"] }, { "file": "union-rust/server/src/http/security_headers.rs", "contains": ["core_overwrites_handler_security_headers", "/api/modules/<id>/*"] }] },
+        { "id": "session.cookie", "kind": "module_manifest", "file": "sentinel-monitor/manifest.json", "module_id": "sentinel-monitor", "assertion": "central_authentication", "module_auth_routes": ["media-hls"], "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "__Host-"] }, { "file": "sentinel-monitor/src/auth.rs", "contains": ["parse_principal", "PlatformActor"] }] },
+        { "id": "session.csrf", "kind": "module_manifest", "file": "sentinel-monitor/manifest.json", "module_id": "sentinel-monitor", "assertion": "central_authentication", "module_auth_routes": ["media-hls"], "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "default_max_bytes", "payload_too_large_response"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "filter_union_cookies", "x-union-module-token"] }, { "file": "sentinel-monitor/src/error.rs", "contains": ["服务器内部错误", "request failed"] }] }
+      ]
+    },
+    {
+      "id": "photo-backup",
+      "role": "private_module",
+      "checks": [
+        { "id": "health.liveness", "kind": "module_manifest", "file": "photo-backup/manifest.json", "module_id": "photo-backup", "assertion": "private_liveness", "evidence": [{ "file": "union-rust/server/src/platform/runtime.rs", "contains": ["probe_http_until_ready", "periodic HTTP liveness/readiness checks passed"] }] },
+        { "id": "health.readiness", "kind": "module_manifest", "file": "photo-backup/manifest.json", "module_id": "photo-backup", "assertion": "private_readiness", "evidence": [{ "file": "union-rust/server/src/platform/http.rs", "contains": ["/api/platform/modules", "ModuleRuntimeView"] }] },
+        { "id": "errors.machine_readable", "kind": "source", "evidence": [{ "file": "photo-backup/crates/server/src/error.rs", "contains": ["ErrorResponse", "code:", "message:", "default_error_code"] }] },
+        { "id": "headers.browser", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["module_api_router()", "security_headers::apply"] }, { "file": "union-rust/server/src/http/security_headers.rs", "contains": ["core_overwrites_handler_security_headers", "/api/modules/<id>/*"] }] },
+        { "id": "session.cookie", "kind": "module_manifest", "file": "photo-backup/manifest.json", "module_id": "photo-backup", "assertion": "central_authentication", "module_auth_routes": ["upload-part", "mobile-api"], "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "__Host-"] }, { "file": "photo-backup/crates/server/src/admin.rs", "contains": ["parse_principal", "require_platform_principal"] }] },
+        { "id": "session.csrf", "kind": "module_manifest", "file": "photo-backup/manifest.json", "module_id": "photo-backup", "assertion": "central_authentication", "module_auth_routes": ["upload-part", "mobile-api"], "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "max_bytes", "payload_too_large_response"] }, { "file": "photo-backup/manifest.json", "contains": ["\"request_body\"", "\"total_timeout_seconds\""] }, { "file": "photo-backup/crates/server/src/routes.rs", "contains": ["DefaultBodyLimit::max", "max_part_bytes"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "filter_union_cookies", "x-union-module-token"] }, { "file": "photo-backup/crates/server/src/error.rs", "contains": ["database error", "storage error"] }] }
+      ]
+    },
+    {
+      "id": "dufs",
+      "role": "private_module",
+      "checks": [
+        { "id": "health.liveness", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs maintainers", "review_by": "2026-11-27", "risk": "medium" } },
+        { "id": "health.readiness", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs maintainers", "review_by": "2026-11-27", "risk": "medium" } },
+        { "id": "errors.machine_readable", "kind": "source", "evidence": [{ "file": "dufs-ram/src/server/problem.rs", "contains": ["struct ProblemDetails", "detail:", "code:", "application/problem+json"] }] },
+        { "id": "headers.browser", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/mod.rs", "contains": ["module_api_router()", "security_headers::apply"] }, { "file": "union-rust/server/src/http/security_headers.rs", "contains": ["core_overwrites_handler_security_headers", "/api/modules/<id>/*"] }] },
+        { "id": "session.cookie", "kind": "module_manifest", "file": "dufs-ram/manifest.json", "module_id": "dufs", "assertion": "central_authentication", "module_auth_routes": [], "evidence": [{ "file": "union-rust/server/src/auth/http/sessions.rs", "contains": ["HttpOnly; SameSite=Strict", "__Host-"] }, { "file": "dufs-ram/tests/union_worker.rs", "contains": ["forged_local_session", "login_page.status(), 404", "set-cookie"] }] },
+        { "id": "session.csrf", "kind": "module_manifest", "file": "dufs-ram/manifest.json", "module_id": "dufs", "assertion": "central_authentication", "module_auth_routes": [], "evidence": [{ "file": "union-rust/server/src/http/access_control.rs", "contains": ["x-csrf-token", "csrf_token_matches"] }] },
+        { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "union-rust/server/src/http/request_body_deadline.rs", "contains": ["route_request_body_policy", "max_bytes", "payload_too_large_response"] }, { "file": "dufs-ram/manifest.json", "contains": ["\"request_body\"", "\"total_timeout_seconds\""] }, { "file": "dufs-ram/src/server/upload/transfer.rs", "contains": ["IdleTimeout", "TotalTimeout", "ExcessBody"] }] },
+        { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "union-rust/server/src/platform/gateway.rs", "contains": ["sanitize_request_headers", "filter_union_cookies", "x-union-module-token"] }, { "file": "dufs-ram/src/http_logger.rs", "contains": ["authorization", "cookie", "x-dufs-csrf-token"] }] }
       ]
     }
   ]

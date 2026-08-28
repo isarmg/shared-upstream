@@ -1,81 +1,81 @@
-# Dufs 与 Photo Backup 共性上移评估
+# Dufs 与 Photo Backup 共性能力上移评估
 
-## 1. 已执行的结论
+## 结论
 
-Dufs 与 Photo Backup 在传输层有真实重合，在业务层没有。把所有能力和实现合并到 Union/
-platform 的可行性仅 **4/10**、维护价值约 **3/10**；上移稳定语义、机器契约和合规测试的
-可行性 **9/10**、价值 **7/10**。因此已选择后者并落地 `blob-transfer-v1` **草案和差距评估**，
-没有创建共享 Storage trait，也没有迁移任何业务 SQL 或文件系统实现。
+两者存在可共享的**传输协议和平台适配能力**，但不应把文件系统与相册业务合并进 Core。最佳上移
+层级是：
 
-评估产物已经存在于源码中，包括
-[`contracts/blob-transfer-v1.json`](contracts/blob-transfer-v1.json)、
-[`contracts/blob-transfer-v1.md`](contracts/blob-transfer-v1.md)、两个消费者的建议映射/相关源码标记以及
-`npm run conformance:blob`。同一草案已 vendored 到 Dufs 和 Photo，`sync:check` 会阻止漂移；该
-命令只验证建议映射词汇、已知缺口和相关源码标记，不验证八项 `must`。`storage`/`full` Actions
-制品及 Union `v0.4.0` 只证明两个 worker 被同一 profile 打包，不证明它们采用或符合草案，因此
-抽取门槛计数为 **0/2**。
+1. `upstream` 保存框架无关的 `blob-transfer-v1` 行为契约和黑盒合规测试；
+2. `platform` 提供可选的流式 body、摘要、幂等键、checkpoint、Range、错误与观测适配器；
+3. Dufs/Photo 各自实现存储、事务、ACL、资产模型和恢复策略；
+4. Union Gateway 只保证认证/RBAC、限额、流式透传、取消和统一外部 TLS。
 
-## 2. 重合能力、建议共享与不共享
+该上移方案可行性约 **8/10**、价值约 **8/10**；把 Dufs/Photo 业务实现直接迁入 Core 的价值约
+**2/10**，维护风险高，不应实施。
 
-| 能力 | Dufs | Photo Backup | 最终边界 |
-|---|---|---|---|
-| 上传 | PUT/PATCH、目标 revision、断点状态 | manifest、分片、BLAKE3、complete | 建议共享状态、幂等、checkpoint、错误目标；不共享 handler |
-| 下载 | 文件 HEAD/Range/ETag | 账号资源 HEAD/Range/ETag | 建议共享 206/416 与缓存语义测试 |
-| 完整性 | 文件/提交身份与持久化结果；没有内容摘要 manifest | part/full 内容摘要 | 草案目标是共享 256-bit 摘要表示和验证要求；Dufs 尚有缺口 |
-| 不确定提交 | 有恢复记录，但草案映射不是已发布状态 API | 持久状态仅 `uploading|complete|failed` | `commit_started/unknown` 是目标保守语义，尚未双方实现 |
-| 删除 | rooted filesystem 删除/隔离回收 | 资产软删除、恢复、永久删除 | 不共享业务状态机 |
-| 配额 | 磁盘容量、并发、搜索预算 | 账号配额、part 上限 | 只建议共享 `quota_exceeded` 和观测字段 |
-| 去重/元数据 | 路径、inode、mtime、权限 | 账号内 hash、相册、标签、时间线 | 保留各模块 |
-| 数据库 | SQLite 与文件提交同故障域 | PostgreSQL 元数据/事务 | 不统一 schema/repository |
+## 值得共享的能力
 
-目标稳定错误类为 `hash_mismatch`、`quota_exceeded`、`target_conflict`、`upload_expired`、
-`invalid_checkpoint`、`commit_unknown`。模块可以保留自己的 wire 字段和更细状态；只有真实
-adapter 实现并经行为测试后，才能宣称它不会把不确定结果错误映射成成功或确定失败。
+| 能力 | 最佳所有者 | 原因 |
+|---|---|---|
+| upload id / operation id 语义 | upstream contract | 与存储模型无关，便于客户端恢复 |
+| 标准 problem/error code | upstream contract + SDK types | Gateway、Web、移动端可一致解释 |
+| BLAKE3/SHA-256 摘要元数据 | SDK helper | 算法和头字段可复用，事务仍归模块 |
+| checkpoint/status/unknown | contract + adapter | 响应丢失后避免盲目重复写入 |
+| HEAD/Range/ETag 条件请求 | contract + HTTP adapter | Dufs/Photo 都需要，但资源标识不同 |
+| streaming/backpressure/cancel | gateway/platform adapter | 防止 Core 缓冲大文件，保持取消传播 |
+| request limits/timeout/metrics | Core policy + SDK hooks | 属于平台横切能力 |
+| 上传任务与通知事件 | task/notification/event API | UI 可统一展示，不共享业务数据库 |
+| Web 上传控件视觉基础 | design tokens/可选组件 | 共享可访问性和状态呈现，不共享业务页 |
 
-## 3. 安全与明文边界
+这些能力只有在两个消费者以同构方式稳定使用并有合规测试后，才应从契约进一步抽为 Rust/TypeScript
+库。先抽一个“万能 blob repository”会把错误抽象固化为 API。
 
-外部上传、下载和管理 API 必须经 Union TLS 网关，worker 只监听私有 loopback。TLS 终止后，
-Photo 和 Dufs 把调用方上传的原始字节写入受控服务器存储；正式 Photo 编码是 `plain-v1`。
-这里明确不做客户端端到端加密，也不要求应用层静态加密。BLAKE3/SHA-256 用于完整性、去重或
-ETag，不是加密。
+## 不应上移的能力
 
-服务器明文是产品需求，不等于取消主机安全：数据目录仍应使用最小权限、备份访问控制和需要时
-由运维提供的磁盘/卷加密。卷加密对应用透明，不能改变 `plain-v1` 的恢复语义。
+- Dufs 的 rooted filesystem、目录遍历、symlink/mount 边界、文件 ACL 和 SQLite 提交日志；
+- Photo 的 asset、album、timeline、duplicate stack、metadata、thumbnail、移动端队列和设备 token；
+- 两者各自的删除/回收、磁盘布局、数据库 schema、migration 和领域审计；
+- 将文件对象伪装成照片 asset，或让 Photo 直接查询 Dufs SQLite/目录；
+- 在 Core 中建立跨两模块的共享业务表或事务。
 
-## 4. 为什么不合并业务实现
+如果未来 Photo 选择 Dufs 作为一个 blob provider，也必须通过版本化 Plugin API，把它视为可替换
+存储后端；Photo 仍拥有 asset 元数据和一致性，不得直接操作 Dufs 内部路径或数据库。
 
-- Dufs 的 rooted filesystem、openat2、inode/revision、符号链接策略、目录操作和 SQLite 恢复
-  必须在同一文件故障域内保持正确。
-- Photo 的账号隔离、PostgreSQL 行锁、内容去重、asset/resource、相册/标签/时间线和移动端队列
-  是照片领域能力。
-- 同时抽象路径/对象 ID、SQLite/PostgreSQL、PUT/PATCH/multipart 和不同权限模型，只会产生
-  大量 feature、回调与关联类型，扩大测试矩阵和跨模块发布耦合。
-- 把字节搬运代码放到 Union 网关还会迫使控制面理解持久化提交，破坏 worker 故障隔离。
+## Plugin Architecture 下的具体落点
 
-因此，上游只拥有目标词汇、错误、wire 约束草案和未来黑盒测试入口；platform 只拥有模块/网关/
-数据库启动薄能力；领域实现继续由两个模块维护。
+两个模块分别声明：
 
-## 5. 合规与剩余门禁
+- `/api/modules/dufs` 与 `/api/modules/photo-backup` API 命名空间；
+- 自己的读取、上传、删除、管理权限；
+- 自己的配置 schema、migration 和健康检查；
+- `blob.upload.*` 等稳定 Platform API 能力版本（若实现后）；
+- `dufs.file.*`、`photo-backup.asset.*` 等独立事件主题。
 
-当前源码门禁：
+Core 可以把两者的长传输显示在统一任务中心，把成功/失败显示为统一通知，但任务 payload 只保存
+稳定资源引用，不复制模块的业务对象。模块禁用后历史审计仍可读，业务详情则明确显示模块不可用。
 
-```bash
-npm run sync:check
-npm run conformance:blob
-```
+## 加密边界
 
-它们验证草案身份、两个**建议映射**覆盖目标词汇、已知缺口非空、vendored 内容一致和相关源码
-标记存在，不验证 adapter 或运行时合规。各模块的既有测试覆盖部分常规上传、完整性或 Range
-行为；`storage/full` Actions 制品及 Union `v0.4.0` 的 manifest、目录拓扑和校验和证据见
-[RELEASE-EVIDENCE.md](RELEASE-EVIDENCE.md)，这些是打包证据。后续仍需先实现缺少的摘要/耐久状态，
-再执行真实磁盘满、慢客户端、进程终止、重复请求、内容损坏、提交响应丢失和恢复测试。
+外部传输必须经过 TLS；Gateway 到独立 Service 使用 mTLS 或等价受认证加密，loopback process 段
+可按部署威胁模型选择本地明文。服务器接收后保存原始、可由服务直接读取的明文字节。摘要用于
+完整性和幂等，不是加密；不得在 UI 或文档中称为端到端加密或静态内容加密。
 
-只有以下条件连续满足后，才重新评估 `blob-transfer-core`：
+## 数据库结论
 
-1. 两模块连续两个正式 Union Release 逐项符合同一契约且无产品特例进入公共 API；
-2. 至少 70% 候选代码无需业务回调或产品 feature 即可相同；
-3. 上述故障注入全部自动化；
-4. crate 不依赖 Axum/Hyper、SQLx/rusqlite、账号表或 rooted path；
-5. 抽取后测试和升级矩阵没有增加一倍以上。
+Photo 使用 PostgreSQL，Dufs 保留 SQLite + filesystem 的本地一致性边界。两者统一 migration
+描述和状态接口，而非统一数据库引擎。强制 Dufs 迁移 PostgreSQL 不会提高插件兼容性；插件边界
+依赖 Manifest/API/事件，不依赖相同 Web framework 或相同存储引擎。
 
-在达到门槛前，少量重复 I/O 代码是有意的隔离成本，不是待清理的技术债。
+两者的目录也不共享：Photo 内容根、Dufs serve root 与 Dufs SQLite state root 分别通过
+`x-union-resource: storage_tree` 声明。Core 要求非根、词法规范化绝对路径，并拒绝同模块内或
+模块之间相同/父子重叠；这防止误配置造成跨模块写入，但不替代 symlink/mount 与 OS 权限验收。
+
+## 迁移顺序
+
+1. 保持并补齐 `blob-transfer-v1` 的运行时合规测试；
+2. 在 Platform SDK 定义纯协议类型和流式适配器，不包含 storage trait 的业务假设；
+3. Dufs/Photo 分别接入并证明原有 Range、取消、完整性和恢复语义未回归；
+4. Gateway 执行大 body 无缓冲透传、限额、取消和错误映射测试；
+5. 至少两个正式模块版本稳定后，再评估抽取更高层实现。
+
+这使共享能力能独立演进，同时避免 Core 成为新的文件/照片“大泥球”。

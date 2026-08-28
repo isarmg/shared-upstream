@@ -8,7 +8,10 @@
 - **Upstream Maintainer**：管理版本、CHANGELOG、弃用周期和正式制品。
 - **Security Reviewer**：审批认证、加密、Cookie、CSRF、秘密值和安全响应头变更。
 - **Design Reviewer**：审批令牌、无框架 CSS、可访问性和视觉基线变更。
-- **Consumer Owner**：分别负责四个消费者的升级验证，任何上游发布都不能绕过消费者测试。
+- **Consumer Owner**：分别负责 Union Core 与五个标准模块的升级验证，任何上游发布都不能绕过对应
+  conformance、Manifest 与消费者测试。
+- **Companion Owner**：负责 Host Monitoring Agent/Worker 共享协议兼容和远端 Agent→Union 验证；
+  不得把 companion 计入服务器模块发行或允许它直连私有 Worker。
 
 ## 合并规则
 

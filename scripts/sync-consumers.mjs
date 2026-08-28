@@ -14,22 +14,12 @@ const mappings = [
     files: ["reset.css", "tokens.css", "content-card.css", "login.css", "accessibility.css", "manifest.json"],
   },
   {
-    project: "photo-backup",
-    destination: "photo-backup/vendor/sarmg-design",
-    files: ["bundle.css", "manifest.json"],
-  },
-  {
     project: "dufs-ram",
     destination: "dufs-ram/assets",
     files: [
       ["bundle.css", "sarmg-design.css"],
       ["manifest.json", "sarmg-design.manifest.json"],
     ],
-  },
-  {
-    project: "sentinel-monitor",
-    destination: "sentinel-monitor/web/vendor/sarmg-design",
-    files: ["reset.css", "accessibility.css", "manifest.json"],
   },
 ];
 

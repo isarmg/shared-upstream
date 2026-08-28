@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "contract": "org.sarmg.http@1.0.0",
+  "mode": "inventory",
+  "generated_at": "2026-08-28T15:46:25.507Z",
+  "projects": [
+    {
+      "id": "union-core",
+      "role": "public_ingress",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "not_run",
+          "message": "live check declared; set UNION_BASE_URL"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 4,
+        "fail": 0,
+        "waived": 0,
+        "not_run": 4,
+        "total": 8
+      }
+    },
+    {
+      "id": "sunshine",
+      "role": "private_module",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_liveness verified for sunshine"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_readiness verified for sunshine"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "central_authentication verified for sunshine"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "central_authentication verified for sunshine"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 8,
+        "fail": 0,
+        "waived": 0,
+        "not_run": 0,
+        "total": 8
+      }
+    },
+    {
+      "id": "host-monitoring",
+      "role": "private_module",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_liveness verified for host-monitoring"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_readiness verified for host-monitoring"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner host-monitoring maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "central_authentication verified for host-monitoring"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "central_authentication verified for host-monitoring"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 7,
+        "fail": 0,
+        "waived": 1,
+        "not_run": 0,
+        "total": 8
+      }
+    },
+    {
+      "id": "sentinel-monitor",
+      "role": "private_module",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_liveness verified for sentinel-monitor"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_readiness verified for sentinel-monitor"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "central_authentication verified for sentinel-monitor"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "central_authentication verified for sentinel-monitor"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 8,
+        "fail": 0,
+        "waived": 0,
+        "not_run": 0,
+        "total": 8
+      }
+    },
+    {
+      "id": "photo-backup",
+      "role": "private_module",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_liveness verified for photo-backup"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "pass",
+          "message": "private_readiness verified for photo-backup"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "central_authentication verified for photo-backup"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "central_authentication verified for photo-backup"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "3 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 8,
+        "fail": 0,
+        "waived": 0,
+        "not_run": 0,
+        "total": 8
+      }
+    },
+    {
+      "id": "dufs",
+      "role": "private_module",
+      "checks": [
+        {
+          "id": "health.liveness",
+          "category": "health",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner dufs maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "health.readiness",
+          "category": "health",
+          "status": "waived",
+          "message": "medium risk; review by 2026-11-27; owner dufs maintainers",
+          "adr": "contracts/adr/0002-current-waivers.md"
+        },
+        {
+          "id": "errors.machine_readable",
+          "category": "errors",
+          "status": "pass",
+          "message": "1 source evidence set(s) verified"
+        },
+        {
+          "id": "headers.browser",
+          "category": "headers",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        },
+        {
+          "id": "session.cookie",
+          "category": "session",
+          "status": "pass",
+          "message": "central_authentication verified for dufs"
+        },
+        {
+          "id": "session.csrf",
+          "category": "csrf",
+          "status": "pass",
+          "message": "central_authentication verified for dufs"
+        },
+        {
+          "id": "budgets.request",
+          "category": "budgets",
+          "status": "pass",
+          "message": "3 source evidence set(s) verified"
+        },
+        {
+          "id": "logging.redaction",
+          "category": "logging",
+          "status": "pass",
+          "message": "2 source evidence set(s) verified"
+        }
+      ],
+      "summary": {
+        "pass": 6,
+        "fail": 0,
+        "waived": 2,
+        "not_run": 0,
+        "total": 8
+      }
+    }
+  ],
+  "summary": {
+    "pass": 41,
+    "fail": 0,
+    "waived": 3,
+    "not_run": 4,
+    "total": 48
+  }
+}

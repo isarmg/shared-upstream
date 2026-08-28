@@ -1,55 +1,108 @@
-# Sarmg Shared Upstream
+# Sarmg Platform Upstream
 
-本仓库是 Union 产品线的薄共享上游：保存稳定契约、设计制品、机器可读映射和合规测试，不保存
-业务 Router、业务数据库、用户表或通用“万能存储”实现。
+本仓库定义 Sarmg/Union 插件平台的稳定契约、设计制品、合规测试和架构治理。当前架构基线是：
 
-自 2026-08-27 起，产品模型固定为：
+> **Modular Monolith 作为基础，Plugin Architecture 作为扩展机制，
+> Service-oriented Deployment 作为演进方向。**
 
-- **一个产品、一个发行单元**：Union 是唯一公开产品；模块不单独发布程序或 GitHub Release。
-- **编译期选择模块**：构建清单固定源码 revision 和模块集合，发行后不能动态安装模块。
-- **运行时私有进程**：Sunshine、主机监控、Sentinel Monitor、Photo Backup、Dufs 分别运行，
-  仅由 Union 静态网关和 supervisor 管理；独立进程是隔离边界，不是独立产品。
-- **数据独立所有**：Union core 保留控制面 SQLite；Sunshine、主机监控使用隔离 PostgreSQL
-  schema/role；Sentinel、Photo 使用专用 PostgreSQL database/role；Dufs 因 rooted filesystem
-  与提交日志的一致性边界继续使用自己的 SQLite。
-- **传输加密、服务器明文**：外部传输必须经 TLS；Photo 与 Dufs 在服务器端保存上传的原始明文
-  字节，摘要用于完整性验证，不构成端到端或静态数据加密。
+Union 是 Core Platform 和统一 Web Shell。Sunshine、Host Monitoring、Sentinel Monitor、
+Photo Backup、Dufs 是由 Builder 作为独立包纳入发行、由 Core 在运行时启停的业务 Module，
+而不是编译进 Core 的业务特性。
+现有五个业务模块全部以受监管的本地私有进程运行；当前发行不把任何业务逻辑链接进 Core。
+主机侧 `unionc-agent` 是 Host Monitoring 的远端配套客户端：源码、线协议与 Host Worker 一并归属
+`host-monitoring` 仓库，但它不是第六个服务器 Module，也不进入 Builder `full` 的五 Worker
+服务器 distribution；Agent 只经 Union 公网入口发起出站配对与遥测请求，不能直连私有 Worker。
+`in_process` 只保留为未来受信任平台扩展的协议能力，`container`/`service` 则是需要资源隔离、
+独立扩缩容或远程故障域时的演进方向，三者都不是当前五模块的交付方式。
 
-## 仓库职责
+```text
+                           browser / client
+                                  │ TLS
+                                  ▼
+              ┌─────────────────────────────────────┐
+              │ Union Core + Web Shell + API Gateway │  唯一公网入口
+              │ auth / RBAC / config / audit /       │
+              │ registry / supervision / lifecycle   │
+              └──────────────────┬───────────────────┘
+                                 │ loopback + module contract
+            ┌────────────┬───────┴───────┬────────────┬───────────┐
+            ▼            ▼               ▼            ▼           ▼
+        Sunshine       Host          Sentinel       Photo        Dufs
+         worker       worker          worker        worker       worker
+            │            │               │            │           │
+         own DB       own DB          own DB       own DB      SQLite + FS
 
-- `design/`：设计令牌、命名空间 CSS、无框架示例和视觉测试。
-- `contracts/http-v1.json`：健康、错误、认证、安全头、预算与日志脱敏契约。
-- `contracts/blob-transfer-v1.*`：Dufs/Photo 上传、恢复、错误、摘要和 Range 的目标语义草案。
-- `conformance/`：源码证据、vendored 契约同步与运行中服务的黑盒检查。
-- `baseline/`、`governance/`：历史基线、所有权和发布规则。
+Builder: at release build time chooses which worker packages are included
+Core:    at runtime discovers and enables/disables only those included packages
+Agent:   remote host companion; outbound TLS to Union only; not in the five-worker server bundle
+```
 
-共同实现按职责分布：`platform` 提供模块描述、PostgreSQL 薄支持层和网关身份契约；
-`union-builder` 提供本地/CI 共用的声明式构建 CLI；Union 负责静态路由、认证边界、进程监管和
-唯一发行。GitHub Actions 只调用 CLI，不另存一套构建逻辑。
+## 支持平台与交付边界
+
+- Union Core/Web 与五个服务器 Worker 只发布 `linux/amd64` 和 `linux/arm64` 两种 distribution；
+  不发布 Windows、macOS、Android、iOS 或 iPadOS 服务器制品。发行清单必须记录平台和架构，Core
+  启动时必须拒绝与当前 Linux 主机不匹配的制品。
+- Builder 可为另一台机器 stage 已验证包，但 install/rollback 在活动指针切换前必须匹配宿主目标。
+  正式 GNU 包由 Ubuntu 24.04 原生 runner 链接，当前兼容基线受该 runner 的 glibc/系统 ABI 约束，
+  “支持 Linux amd64/arm64”不自动表示兼容任意更旧的 Linux 发行版。
+- Host Monitoring 的桌面 Agent 支持 Linux、Windows 与 macOS，作为远端 companion 独立安装；
+  它不是服务器 Worker，也不进入 Union 的五模块 distribution。Agent 源码属于
+  Host 仓库，官方产物由 Union Builder Release 从锁定 revision 集中构建和发布。
+- Android、iOS 与 iPadOS 支持采用宿主应用嵌入的 Rust Agent 核心库。移动操作系统不提供普通
+  常驻 daemon 语义：宿主应用负责后台执行窗口、平台权限、Keychain/Keystore 凭据和 HTTPS 调用，
+  Agent 核心只生成受限、可验证的共享遥测报告。iOS 与 iPadOS 共用 Apple device/simulator 编译
+  目标，由宿主传入产品身份进行区分。
+- 移动库通过目标编译不等于已经交付可安装 APK/IPA；只有真实宿主应用、签名、权限、后台策略和
+  设备验收全部完成后，才可以宣称相应移动端应用已经可用。
+- Photo Backup 客户端源码属于 Photo 仓库，官方产物同样由 Union Builder Release
+  集中发布。当前 Android arm64 未签名 APK 和 iOS/iPadOS 未签名 device `.app`
+  归档是可验证的后续签名输入，不是已上架或生产信任链完成的制品。
+
+## 仓库分工
+
+- `upstream`：架构规范、HTTP/blob 契约、设计令牌、合规与治理；不承载业务实现。
+- `platform`：Manifest v1、Platform SDK、Plugin API、Event Bus 抽象以及共享网关/数据库薄层。
+- `union-rust`：只维护 Core Platform、Plugin Runtime、Web Shell、API Gateway 和内置平台能力，
+  不再承载 Sunshine、Host Worker、Agent 或领域协议源码。
+- `union-builder`：构建 Core 与独立模块包、校验 Manifest/制品、生成可安装分发包的 CLI；
+  其 GitHub Release 同时是模块 Agent/客户端的集中官方产物发布面。
+- `sunshine-worker`：Sunshine 的独立 Backend/Frontend/Manifest 与数据迁移。
+- `host-monitoring`：Host Worker、远端 `unionc-agent` 和两端共享的 `unionc-protocol`；Builder 只把
+  Worker 模块包纳入服务器 distribution，另在 Builder Release 构建 Agent 产物。
+- `sentinel-monitor`、`photo-backup`、`dufs-ram`：其余三个独立业务模块仓库。
+
+每个业务模块仓库拥有自己的 Backend、Frontend、Manifest、Permission Definition、Migration、
+Configuration Schema 和 Version Metadata；配套客户端可以和所属业务域同仓，但必须与服务器模块包
+的内容清单和生命周期分开。
+
+源码当前采用协调式多仓库管理；这仍满足“统一工程治理、逻辑产物独立”。未来若切换 Monorepo，
+必须保留同一 Manifest、SDK、数据边界和独立模块包，目录合并不能成为跨模块耦合的理由。
+
+## 核心约束
+
+- Core 只实现平台公共能力，不包含具体业务逻辑。
+- 模块通过稳定的 Platform API、Plugin API 或事件通信，不引用其他模块内部实现。
+- 模块包含集合由 Builder 在发行构建阶段确定；启停和前端装载不得要求重新构建 Core/Web Shell。
+- 未包含的新模块或新版本通过新的、不可变 Union 发行引入，不允许运行中从公网任意拉取代码。
+- Web 模块使用 Shell 提供的 React/runtime、全局设计 token 与基础样式，自有 CSS 按模块命名空间
+  隔离，不捆绑第二份框架运行时。模块 ESM 是 Builder 验证的受信任代码而非安全沙箱；真正的
+  路由和权限边界由 Core 在服务端执行。
+- 四个 PostgreSQL 模块独占自己的 database/role 与 migration；Dufs 的 rooted filesystem + SQLite
+  提交日志是经过明确记录的例外。任何模块不得直接修改其他模块的数据结构。
+- 模块/伴随进程的持久目录必须声明为非根、规范绝对 `storage_tree`；同模块内或模块之间均不能
+  相同或父子重叠。当前 Sentinel/MediaMTX 录像目录声明仍是明确的未完成项。
+- 只有 Union 暴露公共 TLS 入口；进程型模块默认只监听 loopback。平台管理路由使用 Core
+  会话/RBAC/CSRF 和规范 Principal；只有 Manifest 明确列出的设备/媒体路由执行模块领域授权。
+- Photo 与 Dufs 只要求传输过程加密；服务器保存的是可由服务直接读取的原始明文字节。
 
 ## 权威文档
 
-- [需求、非目标与完成定义](REQUIREMENTS-AND-BOUNDARIES.md)
-- [编译期模块与运行时拓扑](BUILD-AND-MODULE-ARCHITECTURE.md)
-- [实施状态与最终验收矩阵](IMPLEMENTATION-STATUS.md)
-- [构建、制品与文件槽位证据](RELEASE-EVIDENCE.md)
+- [总体架构与决策](ARCHITECTURE.md)
+- [运行时模块、包格式与部署模型](BUILD-AND-MODULE-ARCHITECTURE.md)
+- [需求、边界与完成定义](REQUIREMENTS-AND-BOUNDARIES.md)
+- [当前实施状态](IMPLEMENTATION-STATUS.md)
 - [Dufs/Photo 能力上移评估](DUFS-PHOTO-CAPABILITY-ASSESSMENT.md)
-- [薄共享上游的设计理由](ARCHITECTURE.md)
-
-## 当前状态
-
-阶段 0–2（基线、设计上游、HTTP v1）已完成；`blob-transfer-v1` 草案、两个消费者的建议映射和
-已知差距清单已经落地，但八项 `must` 尚未获得逐项运行时合规证据。
-固定 Builder commit 的四个官方 profile 已由干净 Actions job 构建并校验，manifest 精确证明
-`minimal`、`storage`、`monitoring`、`full` 的正负模块拓扑；minimal→full→minimal 的临时文件
-安装/回滚演练也已通过。完整 run、artifact、SHA-256 和 Release ID 见
-[构建与文件生命周期证据](RELEASE-EVIDENCE.md)。
-
-Builder [`v1.0.0`](https://github.com/isarmg/union-builder/releases/tag/v1.0.0) 与单一 Union
-[`v0.4.0`](https://github.com/isarmg/union-rust/releases/tag/v0.4.0) 已正式发布；从 Release 页面重新
-下载的资产、外层/递归 SHA-256、五模块 revision、Unix mode 和文件安装/回滚均已复验。该结论是
-正式发行文件证据，不等于生产迁移完成：运行时 strict conformance、真实 PostgreSQL/文件系统、
-媒体、业务数据切换及故障注入仍待生产验收。详见[实施状态](IMPLEMENTATION-STATUS.md)。
+- [v0.5 当前与 v0.4 历史发行证据](RELEASE-EVIDENCE.md)
 
 ## 本仓库验证
 
@@ -60,11 +113,10 @@ npm run conformance:inventory
 npm run test:design
 ```
 
-`npm run sync` 会从唯一事实源更新消费者中的设计制品和 `blob-transfer-v1.json`；vendored 文件
-不得手工修改。`conformance:blob` 只验证草案、建议映射、差距声明和相关源码标记，不声称运行时
-合规。`conformance:live` 需要外部运行中的 Union，不属于纯源码检查。
+阶段 0–2 的设计系统、HTTP v1 与基线工作继续有效；v0.4 的编译期组合证据只作为历史记录，
+不再定义 v0.5+ 的目标架构。
 
 ## 许可证
 
-本仓库的第一方代码、文档、测试、设计令牌和生成制品采用
-[Apache License 2.0](LICENSE)。这不会重许可任何第三方依赖。
+本仓库第一方代码、文档、测试和生成制品采用 [Apache License 2.0](LICENSE)。第三方依赖保持其
+原许可证。

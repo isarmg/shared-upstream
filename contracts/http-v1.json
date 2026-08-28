@@ -3,9 +3,14 @@
   "contract": "org.sarmg.http",
   "version": "1.0.0",
   "effective_date": "2026-08-27",
+  "revision_date": "2026-08-28",
+  "deployment_roles": {
+    "public_ingress": "Union Core is the only public HTTP origin and owns public health, sessions, CSRF, Gateway policy, headers and ingress budgets.",
+    "private_module": "A supervised loopback worker declares private health in its Manifest and inherits public HTTP policy from Union; it has no direct live base URL."
+  },
   "requirements": [
-    { "id": "health.liveness", "category": "health", "level": "must", "summary": "Public GET liveness returns 200 promptly and is not cached." },
-    { "id": "health.readiness", "category": "health", "level": "must", "summary": "Public GET readiness checks required persistence and storage dependencies and returns 200 or 503." },
+    { "id": "health.liveness", "category": "health", "level": "must", "summary": "The public ingress exposes non-cached GET liveness; a private module instead declares a loopback supervisor-only liveness probe that no Gateway route covers." },
+    { "id": "health.readiness", "category": "health", "level": "must", "summary": "The public ingress exposes dependency-aware GET readiness; a private module instead declares a loopback supervisor-only readiness probe surfaced through the authenticated platform catalog." },
     { "id": "errors.machine_readable", "category": "errors", "level": "must", "summary": "API errors expose a stable code plus a human-readable message after adapter normalization." },
     { "id": "session.cookie", "category": "session", "level": "must", "summary": "Session cookies are HttpOnly, SameSite=Strict, scoped narrowly, and Secure on HTTPS." },
     { "id": "session.csrf", "category": "csrf", "level": "must", "summary": "Unsafe cookie-authenticated requests require a session-bound CSRF value." },
@@ -20,7 +25,7 @@
   },
   "normalized_health": {
     "liveness_states": ["ok"],
-    "readiness_states": ["ready", "not_ready"],
+    "readiness_states": ["ready", "not-ready"],
     "cache_control_contains": "no-store"
   },
   "waiver_policy": {

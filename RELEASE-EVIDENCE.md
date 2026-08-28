@@ -1,4 +1,90 @@
-# 构建与文件生命周期证据
+# Union 发行证据
+
+## Builder v2.1.0 companion 集中发行
+
+**证据日期：2026-08-28。** Builder `v2.1.0` 标签指向
+`ec74f2d235c20d3f51684558c79d51cd63015818`；发布前的同提交手工运行
+[`33183660834`](https://github.com/isarmg/union-builder/actions/runs/33183660834) 成功，正式标签运行
+[`33185010955`](https://github.com/isarmg/union-builder/actions/runs/33185010955) 也成功。正式
+[Release](https://github.com/isarmg/union-builder/releases/tag/v2.1.0) ID 为 `378588617`，其精确公开资产集为：
+
+| 资产 | Asset ID | SHA-256 | 大小 |
+|---|---:|---|---:|
+| `COMPANION-ASSETS.json` | `533996899` | `4b96ab7fb7fb3ba84eb7e0b2b9c69ad0c0a60423aa5b0193fdb23dd50f293dcb` | 1,533 |
+| `photo-backup-0.2.0-android-arm64-unsigned.apk` | `533996894` | `fa80d212203887bfd4604d14b1588caaa75b743b413010211f51d1c4c6d45eaf` | 12,430,642 |
+| `photo-backup-0.2.0-ios-ipados-arm64-unsigned-app.tar.gz` | `533996898` | `a1b0448fbab0a1a2dde314aec5735e638463247ae49ff07fb30a1a4aff51894c` | 8,727,242 |
+| `union-builder-linux-x86_64` | `533996895` | `686010ed33c7d12eefee69010203514b66c0081e040d67cbcf1fb0f440f57084` | 2,249,432 |
+| `union-builder-macos-aarch64` | `533996908` | `6ac26b4a26ab23f0eeae7cebdba47fcd5bef1e7e24a48db0bb84a2d649cbb152` | 1,807,184 |
+| `union-builder-windows-x86_64.exe` | `533996910` | `bb9adb0d30fadb27230746feb150fdcc909821a49dedd1055fffe51a83e1b1a0` | 2,297,344 |
+| `unionc-agent-0.5.0-macos-arm64-unsigned.pkg` | `533996911` | `72c3368265d7a9070cad67736444c0f8a2b325b8d28459ac96eb02e501fa1c47` | 1,834,306 |
+| `unionc-agent-0.5.0-windows-amd64-unsigned.msi` | `533996917` | `61f9d99ca5dc06f2b18cd4b4de2ee8566b6646007f77685466f9c329a4a0275a` | 3,534,848 |
+| `unionc-agent-0.5.0.aarch64.rpm` | `533996918` | `22e2bb884038d4c4dfc2d9b475e647f845f75bc94868855b2bd76ff233c117da` | 3,310,674 |
+| `unionc-agent-0.5.0.x86_64.rpm` | `533996919` | `1e6b8e776671cf138472bcb61af0b1dd609e800fd76ab4002243dc3cec607314` | 3,503,682 |
+| `unionc-agent-mobile-sdk-0.5.0.tar.gz` | `533996920` | `79a0dcb27d8cf6159dffeaae044b9f533150160139ce4e75fe620e3e56ffdc61` | 334,065 |
+| `unionc-agent_0.5.0_amd64.deb` | `533996926` | `d03b4297a61fa5f78ad7f3274979fbc32ecb02c033edfa9ac3f44e041634d406` | 3,475,566 |
+| `unionc-agent_0.5.0_arm64.deb` | `533996931` | `59ebfc48d5ed80c0ec0600609d29005506f97d1b912194ca329fe3c24ce9326d` | 3,291,748 |
+| `SHA256SUMS` | `533996897` | `08a691d92032b83282f927e2a7fa10f57cc2c86d86a1d30cb820599acf67591c` | 1,316 |
+
+将全部 14 个资产从 Release 重新下载后，精确文件名集与 `SHA256SUMS` 全部复验通过。
+Linux Builder 报告 `union-builder 2.1.0`；三个 CLI 分别为 ELF x86-64、Mach-O arm64
+和 PE x86-64。Host Linux deb 包的 package/version/architecture 为
+`unionc-agent` / `0.5.0` / `amd64|arm64`，RPM、MSI 和 PKG 的 magic 与命名格式一致。
+
+Photo Android APK 只有 `arm64-v8a` 原生库，`libphoto_backup_mobile.so` 与依赖库均为
+ELF AArch64；Apple archive 精确包含 `PhotoBackup.app`，bundle ID 为
+`org.sarmg.photobackup` 并声明 iPhone/iPad device family。APK 没有 v1 签名文件，Apple app
+没有 `_CodeSignature`，与文件名中的 `unsigned` 限制一致。Host mobile SDK 的
+`SOURCE.json` 锁定 Host revision `d80053fcd7edc924b2890784f50be3864e7e1585`，列出
+Android arm64、iOS device/simulator Rust targets，并明确声明无 Android/iOS 应用壳、无 APK/IPA。
+
+正式运行还在干净 CI 中重新通过了 Union `full` 的 Linux amd64/arm64 组合构建。
+这是 Builder/companion 的后续发行，**不是新的 Union Server Release**：Union `v0.5.0`
+仍然由 Builder `v2.0.0` 构建并保持不可变。所有客户端与安装器目前均未签名，
+因此只是可复验的开发/组织内测资产，不是生产信任链、公证、商店分发或真机兼容证明。
+
+## Union v0.5.0 / Builder v2.0.0 当前发行
+
+**证据日期：2026-08-28。** Builder `v2.0.0` 标签指向
+`0e67aed64a239f7e74db4e30f03a2ff2c5a8790c`；发布工作流
+[`33174903463`](https://github.com/isarmg/union-builder/actions/runs/33174903463) 成功，正式
+[Release](https://github.com/isarmg/union-builder/releases/tag/v2.0.0) ID 为 `378507459`。重新下载后
+的 Builder CLI 资产为：
+
+| 资产 | Asset ID | SHA-256 | 大小 |
+|---|---:|---|---:|
+| `union-builder-linux-x86_64` | `533848318` | `3ba658e13d487dd0a9f2b7ee617d231795e50ad0fde1897d5f3e82e39786e948` | 2,249,432 |
+| `union-builder-macos-aarch64` | `533848323` | `5627ba81dfd6a9e9668f4884a51faa5f98eb69de75ef1fb97d6cd47724f37a19` | 1,807,200 |
+| `union-builder-windows-x86_64.exe` | `533848321` | `52caaf9a70cbd8a22b1141f35b7f32a237c85bd4d3050a9e459b136c588c2be2` | 2,297,344 |
+| `SHA256SUMS` | `533848322` | `9e470b0d8fefefd5615c4f1438605e2e77460731f356f59325050bfd691caf87` | 286 |
+
+Linux CLI 报告 `union-builder 2.0.0`；三个可执行文件 magic 分别为 ELF x86-64、
+Mach-O arm64 与 PE x86-64，`SHA256SUMS` 复验通过。
+
+Union `v0.5.0` 标签指向 `f1cf40a8086a28fba822c0587b123c03980665d0`。发布前候选运行
+[`33174529115`](https://github.com/isarmg/union-rust/actions/runs/33174529115) 成功，正式标签运行
+[`33176153070`](https://github.com/isarmg/union-rust/actions/runs/33176153070) 成功；正式
+[Release](https://github.com/isarmg/union-rust/releases/tag/v0.5.0) ID 为 `378517578`：
+
+| 资产 | Asset ID | SHA-256 | 大小 |
+|---|---:|---|---:|
+| `union-0.5.0-full-linux-amd64.tar.gz` | `533868037` | `66b2d0de6b8884aa5c7468bfb41e30605e39c296084410ab539f88af912ee506` | 25,375,119 |
+| `union-0.5.0-full-linux-arm64.tar.gz` | `533868034` | `da6410078ac849e8119eab19433abe30849cda553d892c2fa4b07625e87fec98` | 24,351,456 |
+| `SHA256SUMS` | `533868038` | `9e39d4779c587ffddae2443c19b777fcb341a154c52441de2132543ddef56212` | 204 |
+
+独立重新下载复验已证明：外层和包内摘要均通过；两个包都精确包含
+`dufs`、`host-monitoring`、`photo-backup`、`sentinel-monitor`、`sunshine` 五个模块；
+Core 与全部 Worker 均为 `0755`；amd64 包为 ELF x86-64，arm64 包为 ELF AArch64；
+schema v2 清单记录正确平台、架构、版本和 revision。资产中没有 Agent、APK 或 IPA，
+这正是 Server distribution 与远端 companion 的预期边界。
+
+这些证据将 v0.5 的结论从“未发布候选”提升为“已发布的架构/构建里程碑”，
+但仍不是 production-ready 证明。真实 PostgreSQL/SQLite/文件系统、公开 TLS、媒体、
+业务数据迁移、故障注入、端到端启停/回滚与远端 Agent 配对仍是独立生产验收门禁。
+
+## Union v0.4.0 / Builder v1.0.0 历史证据
+
+> **历史证据范围：** 以下内容只证明 Union v0.4.0 / Builder v1.0.0 的编译期组合和文件槽位行为。
+> v0.5+ 已改为发行内运行时插件架构；这些历史数值不定义当前目标架构。
 
 **证据日期：2026-08-27。** 本文冻结 `union-builder` 四个官方 profile、Builder `v1.0.0`、
 Union `v0.4.0` 和文件安装/回滚演练的最终证据。它明确区分 Actions artifact、正式 GitHub
@@ -123,9 +209,10 @@ Builder full 组装和 publish 共 16 个 job 全部成功。正式
 
 ## 5. 可重复性与剩余边界
 
-当前可审计保证是：完整源码 revision、工具链、模块图、路径、manifest、每次构建的递归校验和与
-官方发布流水线固定。正式 Union 候选与正式 Release 逐文件相同。直接从 Builder 仓库触发的 full
-artifact 与从 Union 仓库调用的 full artifact 中，只有 `bin/unionc` 不同；根因是开发模式回退
+本历史发行可审计保证是：完整源码 revision、工具链、模块图、路径、manifest、每次构建的递归
+校验和与官方发布流水线固定。正式 Union v0.4 候选与正式 Release 逐文件相同。直接从 Builder
+仓库触发的 full artifact 与从 Union 仓库调用的 full artifact 中，只有 `bin/unionc` 不同；根因
+是开发模式回退
 路径通过 `CARGO_MANIFEST_DIR` 编入二进制，两个 Actions checkout 根不同。生产发行始终从
 `bin/unionc` 相对定位 `share/union/web`，因此运行路径不使用该回退值，但这意味着当前不能宣称
 “跨任意 checkout 根逐字节相同”。若要提升到该保证，后续必须删除该绝对路径或在 Builder 中

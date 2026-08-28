@@ -10,12 +10,21 @@
     "generated_at": { "type": "string", "format": "date-time" },
     "projects": {
       "type": "array",
-      "minItems": 4,
+      "minItems": 6,
+      "maxItems": 6,
+      "contains": {
+        "type": "object",
+        "required": ["role"],
+        "properties": { "role": { "const": "public_ingress" } }
+      },
+      "minContains": 1,
+      "maxContains": 1,
       "items": {
         "type": "object",
-        "required": ["id", "checks", "summary"],
+        "required": ["id", "role", "checks", "summary"],
         "properties": {
           "id": { "type": "string" },
+          "role": { "enum": ["public_ingress", "private_module"] },
           "checks": {
             "type": "array",
             "items": {

@@ -2,7 +2,8 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  evaluateHttp, evaluateSource, evaluateWaiver, safeBaseUrl, summarize, validateConfiguration,
+  evaluateHttp, evaluateModuleManifest, evaluateSource, evaluateWaiver, safeBaseUrl, summarize,
+  validateConfiguration,
 } from "./lib.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,12 +20,15 @@ const generatedAt = new Date();
 const projects = [];
 
 for (const project of configuration.projects) {
-  const baseValue = process.env[project.base_url_env];
+  const baseValue = project.base_url_env ? process.env[project.base_url_env] : undefined;
   const checks = [];
   for (const check of project.checks) {
     let outcome;
     if (check.kind === "waiver") outcome = await evaluateWaiver(check, workspace, generatedAt);
     else if (check.kind === "source") outcome = await evaluateSource(check, workspace);
+    else if (check.kind === "module_manifest") {
+      outcome = await evaluateModuleManifest(check, workspace);
+    }
     else if (mode === "inventory") {
       outcome = { status: "not_run", message: `live check declared; set ${project.base_url_env}` };
     } else if (!baseValue) {
@@ -39,6 +43,7 @@ for (const project of configuration.projects) {
   const projectSummary = summarize([{ checks }]);
   projects.push({
     id: project.id,
+    role: project.role,
     ...(baseValue ? { base_url: safeBaseUrl(baseValue) } : {}),
     checks,
     summary: projectSummary,

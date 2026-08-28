@@ -2,6 +2,8 @@ import { access, readFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 
 export const statuses = new Set(["pass", "fail", "waived", "not_run"]);
+const projectRoles = new Set(["public_ingress", "private_module"]);
+const routeAuthModes = new Set(["platform", "module"]);
 
 export function normalizeError(adapter, payload) {
   if (!payload || typeof payload !== "object") return null;
@@ -48,26 +50,54 @@ export function safeBaseUrl(value) {
 
 export function validateConfiguration(contract, configuration) {
   if (configuration.schema_version !== 1) throw new Error("unsupported project configuration");
+  if (configuration.contract !== `${contract.contract}@${contract.version}`) {
+    throw new Error(
+      `configuration contract ${configuration.contract} does not match ${contract.contract}@${contract.version}`,
+    );
+  }
   const requirements = new Map(contract.requirements.map((item) => [item.id, item]));
   if (requirements.size !== contract.requirements.length) throw new Error("duplicate contract requirement");
   const projectIds = new Set();
+  let publicIngresses = 0;
+  let privateModules = 0;
   for (const project of configuration.projects) {
     if (projectIds.has(project.id)) throw new Error(`duplicate project ${project.id}`);
     projectIds.add(project.id);
+    if (!projectRoles.has(project.role)) throw new Error(`${project.id}: unknown role ${project.role}`);
+    if (project.role === "public_ingress") {
+      publicIngresses += 1;
+      if (project.base_url_env !== "UNION_BASE_URL") {
+        throw new Error(`${project.id}: public ingress must use UNION_BASE_URL`);
+      }
+    } else {
+      privateModules += 1;
+      if (project.base_url_env !== undefined) {
+        throw new Error(`${project.id}: private module must not declare a direct live base URL`);
+      }
+    }
     const checkIds = new Set();
     for (const check of project.checks) {
       if (!requirements.has(check.id)) throw new Error(`${project.id}: unknown check ${check.id}`);
       if (checkIds.has(check.id)) throw new Error(`${project.id}: duplicate check ${check.id}`);
       checkIds.add(check.id);
-      if (!new Set(["http", "source", "waiver"]).has(check.kind)) {
+      if (!new Set(["http", "source", "waiver", "module_manifest"]).has(check.kind)) {
         throw new Error(`${project.id}/${check.id}: unknown kind ${check.kind}`);
+      }
+      if (project.role === "private_module" && check.kind === "http") {
+        throw new Error(`${project.id}/${check.id}: private modules cannot declare direct live HTTP checks`);
+      }
+      const completeManifestCheck = ["file", "module_id", "assertion"]
+        .every((field) => typeof check[field] === "string" && check[field]);
+      if (check.kind === "module_manifest" && !completeManifestCheck) {
+        throw new Error(`${project.id}/${check.id}: module_manifest check is incomplete`);
       }
     }
     for (const id of requirements.keys()) {
       if (!checkIds.has(id)) throw new Error(`${project.id}: missing check ${id}`);
     }
   }
-  if (projectIds.size !== 4) throw new Error(`expected four projects, found ${projectIds.size}`);
+  if (publicIngresses !== 1) throw new Error(`expected one public ingress, found ${publicIngresses}`);
+  if (privateModules !== 5) throw new Error(`expected five private modules, found ${privateModules}`);
   return requirements;
 }
 
@@ -115,6 +145,123 @@ export async function evaluateSource(check, workspace) {
   }
   if (missing.length) return { status: "fail", message: missing.join("; ") };
   return { status: "pass", message: `${check.evidence?.length ?? 0} source evidence set(s) verified` };
+}
+
+function safeWorkspacePath(workspace, relativePath) {
+  const root = resolve(workspace);
+  const path = resolve(root, relativePath);
+  if (path !== root && !path.startsWith(`${root}${sep}`)) {
+    throw new Error(`path escapes workspace: ${relativePath}`);
+  }
+  return path;
+}
+
+export function routePatternMatches(pattern, path) {
+  const patternSegments = pattern.split("/");
+  const pathSegments = path.split("/");
+  let patternIndex = 0;
+  let pathIndex = 0;
+  while (patternIndex < patternSegments.length) {
+    const segment = patternSegments[patternIndex];
+    if (/^\{\*[^{}]+\}$/u.test(segment)) return patternIndex === patternSegments.length - 1;
+    if (pathIndex >= pathSegments.length) return false;
+    if (!/^\{[^{}]+\}$/u.test(segment) && segment !== pathSegments[pathIndex]) return false;
+    patternIndex += 1;
+    pathIndex += 1;
+  }
+  return pathIndex === pathSegments.length;
+}
+
+function validateModuleCommon(manifest, check) {
+  const failures = [];
+  if (manifest.id !== check.module_id) failures.push(`manifest id is ${JSON.stringify(manifest.id)}`);
+  if (manifest.execution?.mode !== "process") failures.push("execution mode is not process");
+  if (!["127.0.0.1", "::1"].includes(manifest.execution?.bind?.host)) {
+    failures.push("process bind host is not loopback");
+  }
+  if (manifest.backend?.base_path !== `/api/modules/${check.module_id}`) {
+    failures.push(`backend base path is not /api/modules/${check.module_id}`);
+  }
+  return failures;
+}
+
+function validatePrivateHealth(manifest, check) {
+  const failures = validateModuleCommon(manifest, check);
+  const field = check.assertion === "private_liveness" ? "liveness_path" : "readiness_path";
+  if (manifest.health?.kind !== "http") failures.push("health kind is not http");
+  const probePath = manifest.health?.[field];
+  const invalidProbePath = typeof probePath !== "string"
+    || !probePath.startsWith("/")
+    || probePath.includes("?")
+    || probePath.includes("#")
+    || probePath.split("/").some((segment) => segment === "." || segment === "..");
+  if (invalidProbePath) {
+    failures.push(`${field} is not a normalized absolute HTTP path`);
+  }
+  const service = (manifest.services ?? []).find((item) => item.name === manifest.health?.service);
+  if (!service || service.visibility !== "platform") {
+    failures.push("health service is not a platform-visible supervised service");
+  }
+  if (typeof probePath === "string") {
+    const exposingRoutes = (manifest.backend?.routes ?? []).filter((route) =>
+      (route.methods ?? []).some((method) => method === "GET" || method === "HEAD")
+      && typeof route.upstream_path === "string"
+      && routePatternMatches(route.upstream_path, probePath));
+    if (exposingRoutes.length) {
+      const routeIds = exposingRoutes.map((route) => route.id).join(", ");
+      failures.push(`private ${field} is covered by Gateway route(s): ${routeIds}`);
+    }
+  }
+  return failures;
+}
+
+function validateCentralAuthentication(manifest, check) {
+  const failures = validateModuleCommon(manifest, check);
+  const routes = manifest.backend?.routes ?? [];
+  const actualModuleAuth = routes
+    .filter((route) => route.auth === "module")
+    .map((route) => route.id)
+    .sort();
+  const expectedModuleAuth = [...(check.module_auth_routes ?? [])].sort();
+  if (JSON.stringify(actualModuleAuth) !== JSON.stringify(expectedModuleAuth)) {
+    failures.push(
+      `module-auth routes ${JSON.stringify(actualModuleAuth)} do not match ${JSON.stringify(expectedModuleAuth)}`,
+    );
+  }
+  for (const route of routes) {
+    if (route.auth === "platform" && (typeof route.permission !== "string" || !route.permission)) {
+      failures.push(`platform route ${route.id} has no permission`);
+    } else if (route.auth === "module" && route.permission !== null) {
+      failures.push(`module-auth route ${route.id} must not claim a platform permission`);
+    } else if (!routeAuthModes.has(route.auth)) {
+      failures.push(`route ${route.id} has unsupported auth ${JSON.stringify(route.auth)}`);
+    }
+  }
+  return failures;
+}
+
+export async function evaluateModuleManifest(check, workspace) {
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(safeWorkspacePath(workspace, check.file), "utf8"));
+  } catch (error) {
+    return { status: "fail", message: `cannot read module manifest ${check.file}: ${error.message}` };
+  }
+  let failures;
+  if (["private_liveness", "private_readiness"].includes(check.assertion)) {
+    failures = validatePrivateHealth(manifest, check);
+  } else if (check.assertion === "central_authentication") {
+    failures = validateCentralAuthentication(manifest, check);
+  } else {
+    failures = [`unknown module manifest assertion ${JSON.stringify(check.assertion)}`];
+  }
+  if (!failures.length && check.evidence) {
+    const source = await evaluateSource(check, workspace);
+    if (source.status !== "pass") failures.push(source.message);
+  }
+  return failures.length
+    ? { status: "fail", message: failures.join("; ") }
+    : { status: "pass", message: `${check.assertion} verified for ${check.module_id}` };
 }
 
 function valueAt(payload, path) {
