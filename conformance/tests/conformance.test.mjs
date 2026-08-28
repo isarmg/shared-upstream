@@ -31,10 +31,17 @@ test("report URLs never retain embedded credentials", () => {
   assert.equal(safeBaseUrl("https://user:secret@example.test:8443/"), "https://example.test:8443");
 });
 
-test("the four-project inventory covers every v1 requirement exactly once", async () => {
+test("the four consumers cover every v1 requirement through the Union-only live entry", async () => {
   const contract = JSON.parse(await readFile(new URL("../../contracts/http-v1.json", import.meta.url), "utf8"));
   const configuration = JSON.parse(await readFile(new URL("../projects.json", import.meta.url), "utf8"));
   assert.equal(validateConfiguration(contract, configuration).size, 8);
+  assert(configuration.projects.every((project) => project.base_url_env === "UNION_BASE_URL"));
+  for (const project of configuration.projects.filter((item) => item.id !== "union-rust")) {
+    const prefix = `/modules/${project.id === "dufs-ram" ? "dufs" : project.id}`;
+    for (const check of project.checks.filter((item) => item.kind === "http")) {
+      assert(check.path.startsWith(`${prefix}/`), `${project.id}/${check.id} bypasses Union prefix`);
+    }
+  }
 });
 
 test("HTTP checks validate status, headers, and normalized payload", async () => {

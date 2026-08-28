@@ -1,7 +1,11 @@
-# HTTP contract v1
+# Shared contracts
 
-本目录定义四个服务共同遵守的、与 Rust Web 框架无关的 HTTP 行为。线上的 URL 和历史错误体
-可以不同，`conformance/projects.json` 中的适配器负责归一化；安全语义不能由适配器放宽。
+本目录定义 Union 及模块共同遵守的、与 Rust Web 框架无关的 HTTP 行为。当前 inventory 登记
+Union、Dufs、Photo、Sentinel 四个消费者；三个模块的 live 检查都只接受同一个
+`UNION_BASE_URL`，并通过 `/modules/...` 固定前缀访问，不再支持直接检查 worker 端口。
+Sunshine 与主机监控的公开兼容路径属于 Union console/Agent API，由 Union 的网关与 profile
+测试覆盖，不被登记成两个可独立访问的 Web 服务。线上的错误体可以不同，
+`conformance/projects.json` 中的适配器负责归一化；安全语义不能由适配器放宽。
 
 契约类别：
 
@@ -24,5 +28,11 @@ npm run conformance:inventory
 UNION_BASE_URL=http://127.0.0.1:8080 npm run conformance:live
 ```
 
-`inventory` 验证源码证据并为所有项目生成同格式报告；`live` 还会对已配置 base URL 的服务执行
-只读黑盒请求。设置 `SARMG_CONFORMANCE_STRICT=1` 后，缺少 base URL 也会使 live 检查失败。
+`inventory` 验证源码证据并为所有项目生成同格式报告；`live` 还会经 Union 唯一入口执行只读
+黑盒请求。设置 `SARMG_CONFORMANCE_STRICT=1` 后，缺少 `UNION_BASE_URL` 也会使 live 检查失败。
+
+Dufs 与 Photo Backup 的目标共同传输语义草案另见
+[`blob-transfer-v1.md`](blob-transfer-v1.md) 和机器可读的
+[`blob-transfer-v1.json`](blob-transfer-v1.json)。该草案建议共享状态、错误、完整性、恢复与
+Range 行为，不共享文件系统、照片资产或 SQL 实现；目前的检查只验证草案输入与差距声明，
+不构成运行时合规认证。

@@ -19,6 +19,7 @@
     "baseline:full": "node scripts/verify-baseline.mjs --all --mode full",
     "conformance:inventory": "node conformance/run.mjs --inventory",
     "conformance:live": "node conformance/run.mjs --all",
+    "conformance:blob": "node conformance/blob-transfer.mjs",
     "test:design": "playwright test",
     "check": "npm run check:design && npm run sync:check && node scripts/check-docs.mjs && node --test tests/*.test.mjs conformance/tests/*.test.mjs"
   },

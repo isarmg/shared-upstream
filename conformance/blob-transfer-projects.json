@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "contract": "org.sarmg.blob-transfer@1.0.0",
+  "contract_status": "draft",
+  "runtime_conformance_claimed": false,
+  "projects": [
+    {
+      "id": "dufs-ram",
+      "vendored_contract": "dufs-ram/vendor/sarmg-contracts/blob-transfer-v1.json",
+      "mapping_status": "proposed",
+      "proposed_state_map": {
+        "not-started": "planned",
+        "running": "staging",
+        "awaiting-confirmation": "commit_started",
+        "committed": "committed",
+        "rejected": "rejected",
+        "unknown": "unknown",
+        "not-seen": "expired"
+      },
+      "proposed_error_map": {
+        "hash_mismatch": "hash_mismatch",
+        "insufficient_storage": "quota_exceeded",
+        "destination_exists": "target_conflict",
+        "upload_not_found": "upload_expired",
+        "invalid_upload_offset": "invalid_checkpoint",
+        "unknown": "commit_unknown"
+      },
+      "known_gaps": [
+        "No content-digest manifest or hash_mismatch behavior is implemented; TargetRevision identifies a target object, not its content digest.",
+        "commit_unknown and upload_expired are proposed normalization semantics, not durable public Dufs states."
+      ],
+      "related_evidence": [
+        { "file": "dufs-ram/src/server/upload/protocol.rs", "contains": ["UPLOAD_ID_HEADER", "UPLOAD_LENGTH_HEADER", "UPLOAD_OFFSET_HEADER", "TargetRevision"] },
+        { "file": "dufs-ram/src/server/download.rs", "contains": ["AcceptRanges::bytes", "ParsedRange::Unsatisfiable", "ETag"] },
+        { "file": "dufs-ram/src/server/upload/commit.rs", "contains": ["apply_upload_record_headers"] }
+      ]
+    },
+    {
+      "id": "photo-backup",
+      "vendored_contract": "photo-backup/vendor/sarmg-contracts/blob-transfer-v1.json",
+      "mapping_status": "proposed",
+      "proposed_state_map": {
+        "prepared": "planned",
+        "uploading": "staging",
+        "assembling": "commit_started",
+        "complete": "committed",
+        "failed": "rejected",
+        "result-unknown": "unknown",
+        "missing": "expired"
+      },
+      "proposed_error_map": {
+        "part hash does not match manifest": "hash_mismatch",
+        "quota exceeded": "quota_exceeded",
+        "dedup conflict": "target_conflict",
+        "upload not found": "upload_expired",
+        "part is missing": "invalid_checkpoint",
+        "completion result unknown": "commit_unknown"
+      },
+      "known_gaps": [
+        "Durable commit_started and unknown states are not implemented; persisted upload states are uploading, complete and failed.",
+        "Several source-side error labels are proposed normalization targets rather than current wire errors."
+      ],
+      "related_evidence": [
+        { "file": "photo-backup/crates/server/src/routes.rs", "contains": ["missing_parts", "content_blake3", "complete_upload", "dedup_token"] },
+        { "file": "photo-backup/crates/server/src/storage.rs", "contains": ["part hash does not match manifest", "assembled content hash does not match manifest", "sync_all"] },
+        { "file": "photo-backup/migrations/0004_library_features.sql", "contains": ["storage_encoding", "plain-v1"] }
+      ]
+    }
+  ]
+}

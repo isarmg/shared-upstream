@@ -33,6 +33,11 @@ const mappings = [
   },
 ];
 
+const contractMappings = [
+  "dufs-ram/vendor/sarmg-contracts/blob-transfer-v1.json",
+  "photo-backup/vendor/sarmg-contracts/blob-transfer-v1.json",
+];
+
 async function writeAtomic(path, content) {
   await mkdir(dirname(path), { recursive: true });
   const temporary = `${path}.tmp`;
@@ -56,5 +61,19 @@ for (const mapping of mappings) {
   }
 }
 
-process.stdout.write(`${checkOnly ? "verified" : "synchronized"} ${mappings.length} consumers\n`);
+const blobContract = await readFile(join(root, "contracts/blob-transfer-v1.json"), "utf8");
+for (const relativeDestination of contractMappings) {
+  const destination = join(workspace, relativeDestination);
+  if (checkOnly) {
+    let current;
+    try { current = await readFile(destination, "utf8"); }
+    catch { throw new Error(`missing vendored ${relativeDestination}`); }
+    if (current !== blobContract) throw new Error(`stale vendored ${relativeDestination}`);
+  } else {
+    await writeAtomic(destination, blobContract);
+  }
+}
 
+process.stdout.write(
+  `${checkOnly ? "verified" : "synchronized"} ${mappings.length} design consumers and ${contractMappings.length} contract consumers\n`,
+);

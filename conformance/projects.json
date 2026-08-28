@@ -18,13 +18,13 @@
     },
     {
       "id": "dufs-ram",
-      "base_url_env": "DUFS_BASE_URL",
+      "base_url_env": "UNION_BASE_URL",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/__dufs__/health", "statuses": [200], "content_type": "application/json", "json": { "status": ["OK"] }, "headers": { "cache-control": { "contains": "no-store" } } },
-        { "id": "health.readiness", "kind": "http", "path": "/__dufs__/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not_ready"] }, "headers": { "cache-control": { "contains": "no-store" } } },
+        { "id": "health.liveness", "kind": "http", "path": "/modules/dufs/__dufs__/health", "statuses": [200], "content_type": "application/json", "json": { "status": ["OK"] }, "headers": { "cache-control": { "contains": "no-store" } } },
+        { "id": "health.readiness", "kind": "http", "path": "/modules/dufs/__dufs__/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not_ready"] }, "headers": { "cache-control": { "contains": "no-store" } } },
         { "id": "errors.machine_readable", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs-ram maintainers", "review_by": "2026-11-27", "risk": "low" } },
         { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "dufs-ram maintainers", "review_by": "2026-11-27", "risk": "low" } },
-        { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "dufs-ram/src/auth.rs", "contains": ["HttpOnly; Secure; SameSite=Strict", "__Host-dufs-session"] }] },
+        { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "dufs-ram/src/auth.rs", "contains": ["HttpOnly; Secure; SameSite=Strict", "__Secure-dufs-session", "Path=/modules/dufs/"] }] },
         { "id": "session.csrf", "kind": "source", "evidence": [{ "file": "dufs-ram/src/server/session.rs", "contains": ["x-dufs-csrf-token", "verify_csrf"] }] },
         { "id": "budgets.request", "kind": "source", "evidence": [{ "file": "dufs-ram/src/server/session.rs", "contains": ["LOGIN_BODY_LIMIT", "LOGIN_BODY_TIMEOUT", "Limited::new"] }, { "file": "dufs-ram/src/server/upload/transfer.rs", "contains": ["IdleTimeout", "TotalTimeout", "ExcessBody"] }] },
         { "id": "logging.redaction", "kind": "source", "evidence": [{ "file": "dufs-ram/src/http_logger.rs", "contains": ["authorization", "cookie", "x-dufs-csrf-token"] }] }
@@ -32,10 +32,10 @@
     },
     {
       "id": "photo-backup",
-      "base_url_env": "PHOTO_BACKUP_BASE_URL",
+      "base_url_env": "UNION_BASE_URL",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
-        { "id": "health.readiness", "kind": "http", "path": "/health/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not-ready"] }, "json_has": ["database", "storage"] },
+        { "id": "health.liveness", "kind": "http", "path": "/modules/photo-backup/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
+        { "id": "health.readiness", "kind": "http", "path": "/modules/photo-backup/health/ready", "statuses": [200, 503], "content_type": "application/json", "json": { "status": ["ready", "not-ready"] }, "json_has": ["database", "storage"] },
         { "id": "errors.machine_readable", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
         { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
         { "id": "session.cookie", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "photo-backup maintainers", "review_by": "2026-11-27", "risk": "medium" } },
@@ -46,11 +46,11 @@
     },
     {
       "id": "sentinel-monitor",
-      "base_url_env": "SENTINEL_BASE_URL",
+      "base_url_env": "UNION_BASE_URL",
       "checks": [
-        { "id": "health.liveness", "kind": "http", "path": "/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
-        { "id": "health.readiness", "kind": "http", "path": "/health/ready", "statuses": [200, 503], "content_type": "application/json", "json_has": ["database", "media_service"] },
-        { "id": "errors.machine_readable", "kind": "http", "path": "/api/me", "statuses": [401], "content_type": "application/json", "error_adapter": "nested-error" },
+        { "id": "health.liveness", "kind": "http", "path": "/modules/sentinel-monitor/health/live", "statuses": [200], "content_type": "application/json", "json": { "status": ["ok"] } },
+        { "id": "health.readiness", "kind": "http", "path": "/modules/sentinel-monitor/health/ready", "statuses": [200, 503], "content_type": "application/json", "json_has": ["database", "media_service"] },
+        { "id": "errors.machine_readable", "kind": "http", "path": "/modules/sentinel-monitor/api/me", "statuses": [401], "content_type": "application/json", "error_adapter": "nested-error" },
         { "id": "headers.browser", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "sentinel-monitor maintainers", "review_by": "2026-11-27", "risk": "medium" } },
         { "id": "session.cookie", "kind": "source", "evidence": [{ "file": "sentinel-monitor/src/auth.rs", "contains": ["HttpOnly; SameSite=Strict", "session_cookie_secure", "; Secure"] }] },
         { "id": "session.csrf", "kind": "waiver", "waiver": { "adr": "contracts/adr/0002-current-waivers.md", "owner": "sentinel-monitor maintainers", "review_by": "2026-11-27", "risk": "medium" } },

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "org.sarmg.blob-transfer",
+  "version": "1.0.0",
+  "status": "draft",
+  "draft_date": "2026-08-27",
+  "scope": "Proposed framework- and storage-neutral upload/download behavior for Dufs and Photo Backup",
+  "compliance_claim": "An implementation is not conformant until every must requirement has executable behavior evidence.",
+  "canonical_states": [
+    "planned",
+    "staging",
+    "commit_started",
+    "committed",
+    "rejected",
+    "unknown",
+    "expired"
+  ],
+  "requirements": [
+    {
+      "id": "transfer.manifest_integrity",
+      "level": "must",
+      "summary": "Length, ordered part boundaries and lowercase 256-bit content digests are validated before commit."
+    },
+    {
+      "id": "transfer.idempotency",
+      "level": "must",
+      "summary": "A retry reuses a caller-visible operation identity and cannot create a second committed object."
+    },
+    {
+      "id": "transfer.checkpoint",
+      "level": "must",
+      "summary": "Clients can query durable received progress without retransmitting the body."
+    },
+    {
+      "id": "transfer.unknown_outcome",
+      "level": "must",
+      "summary": "Loss of the commit response is represented as unknown and reconciled before any replay."
+    },
+    {
+      "id": "transfer.atomic_commit",
+      "level": "must",
+      "summary": "Committed content is complete and verified; partial data remains staging data and is never served as committed."
+    },
+    {
+      "id": "transfer.errors",
+      "level": "must",
+      "summary": "Adapters expose the stable error classes defined by this contract without trusting an unverified response body."
+    },
+    {
+      "id": "download.range",
+      "level": "must",
+      "summary": "Committed bytes support correct HEAD and single byte-range behavior, including 206 and 416."
+    },
+    {
+      "id": "transfer.observability",
+      "level": "must",
+      "summary": "Metrics cover active transfers, staged bytes, commit latency, recovery backlog and quota rejection without logging credentials or user paths."
+    }
+  ],
+  "stable_errors": [
+    "hash_mismatch",
+    "quota_exceeded",
+    "target_conflict",
+    "upload_expired",
+    "invalid_checkpoint",
+    "commit_unknown"
+  ],
+  "digest": {
+    "wire_format": "64 lowercase hexadecimal characters",
+    "algorithms": ["blake3-256", "sha256"]
+  },
+  "range": {
+    "methods": ["GET", "HEAD"],
+    "single_range_status": 206,
+    "unsatisfiable_status": 416,
+    "required_headers": ["Accept-Ranges", "Content-Length", "Content-Range", "ETag"]
+  },
+  "non_goals": [
+    "A shared filesystem or object-store implementation",
+    "A shared SQL schema or transaction manager",
+    "A common Axum or Hyper handler",
+    "Equating Dufs paths with Photo Backup assets"
+  ]
+}
