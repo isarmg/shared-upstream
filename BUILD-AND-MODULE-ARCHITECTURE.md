@@ -92,9 +92,9 @@ Manifest 至少描述：
 | Permission | `<module-id>.<resource>.<action>` 或模块声明的等价命名空间 |
 | Event topic | `<module-id>.<domain>.<event>` |
 
-Manifest 不能携带任意 shell 命令、生产秘密或无约束的远程 URL。Container/Service 目标由可信的
-管理员配置和 adapter 解析，不能由上传包任意选择 Docker socket、Kubernetes context 或公网
-回源。
+Manifest 不能携带任意 shell 命令、生产秘密或无约束的远程 URL。服务目标由可信的
+管理员配置和物理机 systemd 服务解析，不能由上传包任意选择容器运行时、Kubernetes context
+或公网回源。
 
 Health path 不属于上述 Backend API 命名空间：它只由 supervisor 使用内部 service endpoint 探测。
 validator 必须对 route pattern 做重叠判断，不能只比较字符串；`/{*path}` 覆盖 health path 时必须

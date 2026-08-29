@@ -68,7 +68,7 @@
       "version_control": "unversioned-local-directory",
       "http": "Axum 0.8",
       "database": "SQLx PostgreSQL",
-      "deployment": "Rust control plane with MediaMTX and Caddy; Docker Compose or native Linux",
+      "deployment": "Rust control plane with MediaMTX and Caddy on physical Linux",
       "browser_support": "Modern browsers with WebRTC; HLS fallback through hls.js",
       "quick": [
         { "cwd": "sentinel-monitor", "command": ["cargo", "test", "--no-run"] },
@@ -82,4 +82,3 @@
     }
   }
 }
-
