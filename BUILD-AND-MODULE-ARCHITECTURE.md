@@ -24,7 +24,7 @@ Builder profile 描述当前发行**包含的模块包集合**，不改变 Core 
 拉取可执行代码。
 
 官方 `full` 是**服务器发行图**：只包含 Sunshine、Host Monitoring、Sentinel Monitor、Photo Backup
-和 Dufs 五个私有 Worker。`host-monitoring` 仓库中的远端 `unionc-agent` 与 Host Worker 共用协议和
+和 Dufs 五个私有 Worker。`host-monitoring` 仓库中的远端 `host-m-agent` 与 Host Worker 共用协议和
 版本治理，但不复制进该服务器 distribution；它在被监控主机独立安装，只通过 Union 公网网关
 通信。Builder 的模块 profile 不应把 companion 客户端误算为第六个 Module 或受监管本地进程。
 Agent 与 Photo 客户端的源码仍由所属模块仓库维护，但官方产物由 Builder Release

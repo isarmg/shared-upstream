@@ -21,8 +21,10 @@
   `/api/modules/<id>` 才是受保护 Gateway，health 只由 supervisor 探测并检查 wildcard 路由重叠。
 - 明确持久 `storage_tree` 必须是模块独占、非根、规范绝对路径并拒绝父子重叠；Sentinel/MediaMTX
   录像目录声明和 Dufs health wildcard 隔离继续作为显式未完成项。
-- 将 Sunshine 从 `union-rust` 拆至 `sunshine-worker`，并将 Host Worker、远端 `unionc-agent` 与共享
+- 将 Sunshine 从 `union-rust` 拆至 `sunshine-worker`，并将 Host Worker、远端 `host-m-agent` 与共享
   `unionc-protocol` 统一归入 `host-monitoring`；`union-rust` 仅维护 Core/Web 与平台运行时。
+- 将 Host Monitoring 的远端 Agent、Cargo package、可执行文件、安装服务与 Builder Release 资产
+  统一命名为 `host-m-agent`；稳定网关协议路径继续使用 `/agent/v1` 和 `/agent/v2`。
 - 明确 Builder `full` 是恰含五个私有 Worker 的服务器发行，不含远端 Agent；Agent 是 Host
   Monitoring companion，只经 Union 唯一公网 TLS/Gateway 配对和上报，不能直连 Worker。
 - 将 Union Builder Release 定义为模块 Agent/客户端的集中官方发布面；Host 与 Photo

@@ -33,7 +33,7 @@ Core 只拥有平台级能力：
 Sunshine 主机管理、设备监控、相册、摄像头和文件服务等业务逻辑不得进入 Core。Core 可以提供
 通用抽象，但不能通过“公共能力”名义保存某个业务域的 DTO、SQL 或流程分支。
 因此 `union-rust` 只拥有 Core/Web 及平台运行时；Sunshine 源码归 `sunshine-worker`，Host Worker、
-远端 `unionc-agent` 和两端线协议共同归 `host-monitoring`。协议与领域客户端同仓不会使它们成为
+远端 `host-m-agent` 和两端线协议共同归 `host-monitoring`。协议与领域客户端同仓不会使它们成为
 Core 的平台公共能力。
 
 ### Plugin Runtime
@@ -126,7 +126,7 @@ revision、经过发行清单和摘要校验的官方模块。若要运行第三
 身份与目录、独立 cgroup/namespace 或 container/service，并把 loopback token 升级为可验证的
 workload identity；不能把“独立 PID”宣传成完整安全隔离。
 
-`unionc-agent` 不属于上述五个私有 Worker。它安装在被监控主机上，是 Host Monitoring 的远端
+`host-m-agent` 不属于上述五个私有 Worker。它安装在被监控主机上，是 Host Monitoring 的远端
 companion：只向 Union 的唯一公网 TLS/Gateway 发起出站请求，不发现、不监管也不直连 Host Worker。
 Builder `full` 的服务器 distribution 固定并包含五个 Worker，但明确不包含 Agent；Agent 的原生
 安装介质是独立逻辑资产，必须与兼容的 Host 协议/Union 版本建立可审计关系，不能成为第二个公网

@@ -17,7 +17,7 @@ Union Core 在**运行阶段**从当前发行的受信目录发现模块，完�
 权限、migration、动态 Gateway/Web 资源注册以及启停和进程监管。Sunshine、Host Monitoring、
 Sentinel Monitor、Photo Backup 和 Dufs 均以独立私有 process worker 为当前交付模式，不再作为
 编译进 Core 的业务 feature，也不作为独立公网产品运行。
-Sunshine 已拆到 `sunshine-worker`，Host Worker、远端 `unionc-agent` 与 `unionc-protocol` 已统一拆到
+Sunshine 已拆到 `sunshine-worker`，Host Worker、远端 `host-m-agent` 与 `unionc-protocol` 已统一拆到
 `host-monitoring`；`union-rust` 只保留 Core/Web 与平台运行时。Agent 是安装在被监控主机的 companion，
 不进入五 Worker 的服务器 distribution，只经 Union 公网入口访问 Host 模块能力。
 服务器源码与发行契约现只接受 Linux amd64/arm64；Host Agent 保留 Linux/Windows/macOS 桌面形态，
@@ -72,8 +72,8 @@ Union v0.4.0 和 Builder v1.0.0 的编译期 feature、静态 Gateway、文件�
 
 | 模块 | 包与运行方式 | 数据所有权 | 当前状态与主要待办 |
 |---|---|---|---|
-| Sunshine | 独立 `sunshine-worker` 仓库根标准包；私有 process | dedicated PostgreSQL database + role；库内保留 `sunshine` schema | Manifest、Frontend、config、migration 和 worker 源码已拆仓；待最终 SHA 固定、旧数据停写、导入/复验、Gateway 与回滚候选演练 |
-| Host Monitoring | 独立 `host-monitoring/host-monitoring-worker` 标准包；私有 process，Manifest args 包含 `serve`；同仓 Agent 不进入服务器包 | dedicated PostgreSQL database + role；库内保留 `host_monitoring` schema | `d80053fcd7edc924b2890784f50be3864e7e1585` 已包含 Worker、共享协议、Linux/Windows/macOS 桌面 daemon/CLI，以及 Android/iOS/iPadOS 宿主驱动的无 daemon Rust 核心库；Builder v2.1 已集中发布并复验桌面安装包与移动源码 SDK；移动端没有 APK/IPA、宿主后台承诺或桌面等价整机遥测；待签名/公证、真实宿主 App、Agent 配对、历史导入、长连接/重启及数据回滚 |
+| Sunshine | 独立 `sunshine-worker` 仓库根标准包；私有 process | dedicated PostgreSQL database + role；库内保留 `sunshine` schema | `d6e6d944c75bd2666deb2a472a874c659cbb8da6` 已包含独立 worker、Manifest、config、migration，以及按原交互恢复并适配动态 Shell/RBAC 的模块前端；待远端 CI、旧数据停写、导入/复验、Gateway 与回滚候选演练 |
+| Host Monitoring | 独立 `host-monitoring/host-monitoring-worker` 标准包；私有 process，Manifest args 包含 `serve`；同仓 Agent 不进入服务器包 | dedicated PostgreSQL database + role；库内保留 `host_monitoring` schema | `bb301742e8f6c7c181b17b0191e62b99bf42ebdb` 已将 Agent 产品、安装服务与发布资产统一命名为 `host-m-agent`，恢复模块前端并保留既有线协议；Builder v2.1 曾从前序 `d80053fcd7edc924b2890784f50be3864e7e1585` 集中发布旧命名桌面包与移动 SDK，当前新命名资产待下一次 Builder Release；移动端仍没有 APK/IPA、宿主后台承诺或桌面等价整机遥测；待签名/公证、真实宿主 App、Agent 配对、历史导入、长连接/重启及数据回滚 |
 | Sentinel Monitor | 独立仓库根标准包；私有 process | 专用 PostgreSQL database/role；媒体与 MediaMTX 的领域所有权归模块，但录像目录尚未声明 `storage_tree` | Manifest/Frontend/配置/路由已迁移；先补 MediaMTX 持久目录声明与冲突门禁，再做真实摄像头、ONVIF、UDP、WHEP/HLS/SSE、录像与故障隔离联调 |
 | Photo Backup | 独立仓库根标准包；私有 process | 专用 PostgreSQL database/role + 模块明文内容目录 | `41c67959ff901cdc6c5caac3e678ea8430f0ec7c` 的上传/资源库、标准包、Android arm64 未签名 APK 和 iOS/iPadOS 未签名 device `.app` 已由 Builder v2.1 集中发布并重下载复验；待公网 TLS 网关、大文件恢复、配额、签名/真机客户端、真实存储故障与数据恢复 |
 | Dufs | 独立仓库根标准包；私有 process | rooted filesystem + embedded SQLite，作为明确例外；serve/state tree 均有独立声明 | `263778f8b34f2af77f851827fed36c924bc48b20` 已规范化 Linux 平台相关的 `stat.st_nlink` 类型并增加原生 ARM64 check/release build 门禁，Builder `0e67aed64a239f7e74db4e30f03a2ff2c5a8790c` 已在 `storage/full` 固定该 revision；当前 GET/HEAD catch-all 仍覆盖 supervisor health path，须先加 Gateway deny/拆路由，再做上传/Range/RBAC、磁盘故障和恢复验证 |
@@ -84,7 +84,7 @@ Union TLS/Gateway 访问。进程隔离提供独立故障域，但不等同于�
 兄弟进程或文件；当前校验和与固定 revision 建立的是受信官方代码供应链，不是第三方插件安全
 沙箱。独立身份/cgroup/namespace 或 container/service 隔离仍属于低信任模块上线前门禁。
 
-远端 `unionc-agent` 不监听 Union 的模块端口，也不由 Core supervisor 启停。它与 Host Worker
+远端 `host-m-agent` 不监听 Union 的模块端口，也不由 Core supervisor 启停。它与 Host Worker
 共用 `host-monitoring` 仓库和协议是为了消除 wire DTO 漂移，不改变部署边界：服务器 `full` 包仍
 只有五个 Worker，Agent 在远端主机独立安装并只向 Union 发起出站 TLS 请求。
 
@@ -119,7 +119,9 @@ Dufs `263778f8b34f2af77f851827fed36c924bc48b20` 已修复此前完整 ARM64 组�
 类型差异并加入原生 ARM64 门禁，Builder `0e67aed64a239f7e74db4e30f03a2ff2c5a8790c` 已随
 `v2.0.0` 固定该输入；
 Union `f1cf40a8086a28fba822c0587b123c03980665d0` 已补齐 Core/Plugin 状态根保留测试。Host
-`d80053fcd7edc924b2890784f50be3864e7e1585` 的桌面三系统与 Android/Apple 移动库 CI 已通过；
+前序 `d80053fcd7edc924b2890784f50be3864e7e1585` 的桌面三系统与 Android/Apple 移动库 CI 已通过；
+当前 `bb301742e8f6c7c181b17b0191e62b99bf42ebdb` 的重命名和前端恢复已通过本地 workspace、目标编译、
+打包契约与 Web 测试，但新提交的远端 CI 与 Builder 新名称 Release 尚待运行；
 Photo `41c67959ff901cdc6c5caac3e678ea8430f0ec7c` 的 Android/Apple 客户端构建 CI 也已通过。
 Builder `v2.1.0` 正式运行 `33185010955` 随后从这两个不可变 revision
 重建并发布了 Host/Photo companion；14 个 Release 资产的精确名称、SHA-256、
@@ -158,7 +160,7 @@ HTTP/blob 阶段 0–2 的设计与契约基线仍有效。`blob-transfer-v1` �
    Union v0.5 / Builder v2.0 正式 Server 发行链及 Builder v2.1 companion 发行链已冻结；
 2. **已完成发行里程碑部分：** 在干净 CI 分别针对 Linux amd64/arm64 构建 `full`，并验证包正负集合、Manifest、权限、
    config/version、migration、可执行位、有界文件清单和 SHA-256；`full` 必须含五个 Worker 且不含
-   `unionc-agent`、Agent 安装器或 Host 仓库其他源码；
+   `host-m-agent`、Agent 安装器或 Host 仓库其他源码；
 3. **已完成：** 发布并重新下载验证 Builder v2.0、Builder v2.1 与 Union v0.5 的不可移动
    tag/Release；旧 v0.4/v1 标签未移动或覆盖；
 4. 从最终 full slot 启动 Core，逐个发现、配置、迁移、启用、访问、禁用和重启五模块，并证明

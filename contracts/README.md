@@ -3,7 +3,7 @@
 本目录定义 Union Core 与五个模块共同遵守的、与 Rust Web 框架无关的 HTTP 行为。当前 inventory
 登记一个 `public_ingress`（Union Core）和五个 `private_module`（Sunshine、Host、Sentinel、Photo、
 Dufs）。只有 Core 接受 `UNION_BASE_URL` 并执行公网 live 检查；模块不得声明直接 live base URL。
-远端 `unionc-agent` 是 Host Monitoring companion，而不是第六个 HTTP conformance project：它不在
+远端 `host-m-agent` 是 Host Monitoring companion，而不是第六个 HTTP conformance project：它不在
 服务器 distribution 中提供入口，只能经 Union 访问 Host Worker 的 Manifest capability 路由。
 
 三类路径必须严格区分：

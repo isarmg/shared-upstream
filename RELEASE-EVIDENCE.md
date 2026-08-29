@@ -1,5 +1,9 @@
 # Union 发行证据
 
+> 命名说明：下列 Builder v2.1.0 表格是不可变的历史发布证据，因此保留当时真实发布的旧 Agent
+> 文件名与包名。Host Monitoring 远端 Agent 的当前规范名称是 `host-m-agent`；后续正式 Release
+> 必须使用新名称并新增对应证据，不能用本页的历史资产名推导当前命名。
+
 ## Builder v2.1.0 companion 集中发行
 
 **证据日期：2026-08-28。** Builder `v2.1.0` 标签指向

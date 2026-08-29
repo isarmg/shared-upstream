@@ -16,7 +16,7 @@
 
 本规范中的“服务器发行”包含一个 Union Core/Web 和所选私有 Worker。官方 `full` 必须恰好包含
 Sunshine、Host Monitoring、Sentinel Monitor、Photo Backup、Dufs 五个 Worker；远端
-`unionc-agent` 是 Host Monitoring companion，不属于服务器模块集合，只能经 Union 入口访问系统。
+`host-m-agent` 是 Host Monitoring companion，不属于服务器模块集合，只能经 Union 入口访问系统。
 
 ### 1.1 支持平台
 
@@ -29,7 +29,7 @@ Sunshine、Host Monitoring、Sentinel Monitor、Photo Backup、Dufs 五个 Worke
 - `stage` MAY 为其他受支持 Linux 架构预置包；`install` 与 `rollback` MUST 在修改活动发行指针前
   复验当前宿主目标。正式 GNU 包以 Ubuntu 24.04 原生 runner 的 glibc/系统 ABI 为当前兼容基线；
   未在更旧发行版验证前 MUST NOT 宣称“任意 Linux”兼容。
-- 桌面 `unionc-agent` MUST 支持 Linux、Windows 与 macOS，并继续作为 Host Monitoring 的远端
+- 桌面 `host-m-agent` MUST 支持 Linux、Windows 与 macOS，并继续作为 Host Monitoring 的远端
   companion；其安装介质和生命周期 MUST 与服务器 distribution 分离，并 MUST 由
   Union Builder Release 从锁定 Host revision 集中发布。
 - Android Agent 核心 MUST 至少验证 `aarch64-linux-android`；Apple 移动 Agent 核心 MUST 验证
@@ -206,7 +206,7 @@ Photo/Dufs 的明确边界是“传输加密、服务器端明文”：TLS 终�
 - 跨仓库契约修改先发布兼容 SDK，再迁移消费者，最后移除旧 API。
 
 当前权威归属为：`union-rust` 只维护 Core/Web；`sunshine-worker` 维护 Sunshine；
-`host-monitoring` 维护 Host Worker、`unionc-agent` 与 `unionc-protocol`；Sentinel、Photo、Dufs 继续
+`host-monitoring` 维护 Host Worker、`host-m-agent` 与 `unionc-protocol`；Sentinel、Photo、Dufs 继续
 由各自仓库维护。Builder 的服务器包白名单只能从 Host 仓库取 `host-monitoring-worker`，不能把
 `agent` 或整个源码仓库递归装入发行。
 
@@ -225,7 +225,7 @@ Photo/Dufs 的明确边界是“传输加密、服务器端明文”：TLS 终�
 - Photo、Dufs 以及 Sentinel/MediaMTX 等所有实际持久文件树均有 `storage_tree` 声明，绝对路径、根
   路径、词法非规范路径及同/跨模块父子重叠负测试通过；
 - Builder 可独立构建/验证模块包和组合 distribution；
-- `full` 服务器制品恰含五个 Worker 且不含 `unionc-agent`；Agent 只经 Union 完成真实配对和遥测，
+- `full` 服务器制品恰含五个 Worker 且不含 `host-m-agent`；Agent 只经 Union 完成真实配对和遥测，
   与 Worker 的协议兼容关系可复验；
 - Linux amd64/arm64 两个服务器制品均由各自原生 CI runner 构建并通过目标清单、校验和、五 Worker
   正负集合和启动前架构门禁；Agent 的 Linux/Windows/macOS 桌面构建以及 Android/iOS/iPadOS

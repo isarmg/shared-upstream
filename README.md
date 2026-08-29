@@ -9,7 +9,7 @@ Union 是 Core Platform 和统一 Web Shell。Sunshine、Host Monitoring、Senti
 Photo Backup、Dufs 是由 Builder 作为独立包纳入发行、由 Core 在运行时启停的业务 Module，
 而不是编译进 Core 的业务特性。
 现有五个业务模块全部以受监管的本地私有进程运行；当前发行不把任何业务逻辑链接进 Core。
-主机侧 `unionc-agent` 是 Host Monitoring 的远端配套客户端：源码、线协议与 Host Worker 一并归属
+主机侧 `host-m-agent` 是 Host Monitoring 的远端配套客户端：源码、线协议与 Host Worker 一并归属
 `host-monitoring` 仓库，但它不是第六个服务器 Module，也不进入 Builder `full` 的五 Worker
 服务器 distribution；Agent 只经 Union 公网入口发起出站配对与遥测请求，不能直连私有 Worker。
 `in_process` 只保留为未来受信任平台扩展的协议能力，`container`/`service` 则是需要资源隔离、
@@ -67,7 +67,7 @@ Agent:   remote host companion; outbound TLS to Union only; not in the five-work
 - `union-builder`：构建 Core 与独立模块包、校验 Manifest/制品、生成可安装分发包的 CLI；
   其 GitHub Release 同时是模块 Agent/客户端的集中官方产物发布面。
 - `sunshine-worker`：Sunshine 的独立 Backend/Frontend/Manifest 与数据迁移。
-- `host-monitoring`：Host Worker、远端 `unionc-agent` 和两端共享的 `unionc-protocol`；Builder 只把
+- `host-monitoring`：Host Worker、远端 `host-m-agent` 和两端共享的 `unionc-protocol`；Builder 只把
   Worker 模块包纳入服务器 distribution，另在 Builder Release 构建 Agent 产物。
 - `sentinel-monitor`、`photo-backup`、`dufs-ram`：其余三个独立业务模块仓库。
 
